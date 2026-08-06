@@ -55,8 +55,21 @@ contract TokenVesting is Ownable {
     //// Constructor ////
     ////////////////////
 
+    /**
+     * @notice  Initialises the TokenVesting contract with the vesting token address.
+     * @dev     Sets the contract owner to the deployer via Ownable. Validates that the
+     *          provided token address is not the zero address to prevent contract bricking.
+     *          VESTING_TOKEN is immutable and cannot be changed after deployment, ensuring
+     *          security and gas efficiency.
+     * @param   _vestingToken Address of the ERC20 token to be vested.
+     * @custom:error TokenVesting__InvalidToken if _vestingToken is the zero address.
+     */
     constructor(address _vestingToken) Ownable(msg.sender) {
         if (_vestingToken == address(0)) revert TokenVesting__InvalidToken();
         VESTING_TOKEN = IERC20(_vestingToken);
     }
+
+    ///////////////////
+    /// Functions /////
+    ///////////////////
 }
