@@ -9,12 +9,13 @@ contract TokenVestingTest is Test {
     TokenVesting public tokenVesting;
     VestingToken public vestingToken;
 
-    address public owner = address(0x1);
-    address public beneficiary1 = address(0x2);
-    address public beneficiary2 = address(0x3);
-    address public beneficiary3 = address(0x4);
+    address public owner = makeAddr("user");
+    address public beneficiary1 = makeAddr("beneficiary1");
+    address public beneficiary2 = makeAddr("beneficiary2");
+    address public beneficiary3 = makeAddr("beneficiary3");
 
     uint256 public constant ALLOCATION = 1000e18;
+    uint256 public constant START_TIME = 1_000_000;
     uint256 public constant CLIFF_DURATION = 30 days;
     uint256 public constant VESTING_DURATION = 365 days;
 
@@ -37,5 +38,15 @@ contract TokenVestingTest is Test {
 
         vm.prank(owner);
         if (!vestingToken.transfer(address(tokenVesting), 1_000_000e18)) revert TokenVestingTest__TransferFailed();
+    }
+
+    //////////////////////
+    /// addBeneficiary ///
+    //////////////////////
+
+    function testAddBeneficiaryRevertsIfBeneficiaryIsZeroAddress() public {
+        vm.prank(owner);
+        vm.expectRevert(TokenVesting.TokenVesting__InvalidBeneficiaryAddress.selector);
+        tokenVesting.addBeneficiary(address(0), ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
     }
 }
