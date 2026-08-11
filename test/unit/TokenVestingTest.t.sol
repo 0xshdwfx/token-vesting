@@ -4,7 +4,6 @@ pragma solidity ^0.8.26;
 import {Test} from "forge-std/Test.sol";
 import {TokenVesting} from "../../src/TokenVesting.sol";
 import {VestingToken} from "../../src/VestingToken.sol";
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract TokenVestingTest is Test {
     TokenVesting public tokenVesting;
@@ -19,6 +18,8 @@ contract TokenVestingTest is Test {
     uint256 public constant CLIFF_DURATION = 30 days;
     uint256 public constant VESTING_DURATION = 365 days;
 
+    error TokenVestingTest__TransferFailed();
+
     event BeneficiaryAdded(
         address indexed beneficiary,
         uint256 totalAllocation,
@@ -28,10 +29,13 @@ contract TokenVestingTest is Test {
     );
 
     function setUp() public {
-        vm.startPrank(owner);
+        vm.prank(owner);
         vestingToken = new VestingToken();
+
+        vm.prank(owner);
         tokenVesting = new TokenVesting(address(vestingToken));
-        vestingToken.transfer(address(tokenVesting), 1_000_000e18);
-        vm.stopPrank();
+
+        vm.prank(owner);
+        if (!vestingToken.transfer(address(tokenVesting), 1_000_000e18)) revert TokenVestingTest__TransferFailed();
     }
 }
