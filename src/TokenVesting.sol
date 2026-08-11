@@ -18,7 +18,6 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
  *          revoke schedules to recover unvested tokens. All vesting calculations are
  *          linear after the cliff period.
  */
-
 contract TokenVesting is Ownable {
     using SafeERC20 for IERC20;
 
@@ -40,16 +39,33 @@ contract TokenVesting is Ownable {
     //////////////////////
 
     IERC20 public immutable VESTING_TOKEN;
+    mapping(address beneficiary => VestingSchedule) public vestingSchedules;
+    address[] public beneficiaries;
+    uint256 public totalVestingAllocation;
 
     /////////////////
     /// Events //////
     /////////////////
+
+    event BeneficiaryAdded(
+        address indexed beneficiary,
+        uint256 totalAllocation,
+        uint256 startTime,
+        uint256 cliffDuration,
+        uint256 vestingDuration
+    );
 
     /////////////////
     /// Errors //////
     /////////////////
 
     error TokenVesting__InvalidToken();
+    error TokenVesting__InvalidBeneficiaryAddress();
+    error TokenVesting__InvalidAllocationAmount();
+    error TokenVesting__InvalidStartTime();
+    error TokenVesting__InvalidVestingDuration();
+    error TokenVesting__CliffDurationIsGreaterThanVestingDuration();
+    error TokenVesting__BeneficiaryAlreadyExists(address beneficiary);
 
     //////////////////////
     //// Constructor ////
@@ -72,4 +88,71 @@ contract TokenVesting is Ownable {
     ///////////////////
     /// Functions /////
     ///////////////////
+
+    /**
+     * @notice  Adds a new beneficiary with a custom vesting schedule.
+     * @dev     Only the contract owner can call this function. Creates a VestingSchedule
+     *          struct with the provided parameters and stores it in the vestingSchedules
+     *          mapping. Validates all inputs to ensure data integrity. Tracks total
+     *          allocation to prevent over-allocation. Emits BeneficiaryAdded event.
+     * @param   beneficiary Address of the beneficiary who will receive vested tokens.
+     * @param   totalAllocation Total tokens allocated to this beneficiary over the full vesting period.
+     * @param   startTime Timestamp when the vesting period begins.
+     * @param   cliffDuration Duration in seconds before any tokens unlock.
+     * @param   vestingDuration Total duration in seconds from start to 100% vested.
+     * @custom:error TokenVesting__InvalidBeneficiaryAddress if beneficiary is zero address.
+     * @custom:error TokenVesting__BeneficiaryAlreadyExists if beneficiary already has a vesting schedule.
+     * @custom:error TokenVesting__InvalidAllocationAmount if totalAllocation is zero.
+     * @custom:error TokenVesting__InvalidStartTime if startTime is zero.
+     * @custom:error TokenVesting__InvalidVestingDuration if vestingDuration is zero.
+     * @custom:error TokenVesting__CliffDurationIsGreaterThanVestingDuration if cliff >= vesting duration.
+     */
+    function addBeneficiary(
+        address beneficiary,
+        uint256 totalAllocation,
+        uint256 startTime,
+        uint256 cliffDuration,
+        uint256 vestingDuration
+    ) external onlyOwner {
+        // validate beneficiary address is not zero
+        if (beneficiary == address(0)) revert TokenVesting__InvalidBeneficiaryAddress();
+
+        // validate beneficiary doesn't already exist
+        if (vestingSchedules[beneficiary].totalAllocation != 0) {
+            revert TokenVesting__BeneficiaryAlreadyExists(beneficiary);
+        }
+
+        // validate allocation amount is not zero
+        if (totalAllocation == 0) revert TokenVesting__InvalidAllocationAmount();
+
+        // validate start time is not zero
+        if (startTime == 0) revert TokenVesting__InvalidStartTime();
+
+        // validate vesting duration is not zero
+        if (vestingDuration == 0) revert TokenVesting__InvalidVestingDuration();
+
+        // validate cliff duration is not greater than or equal to vesting duration
+        if (cliffDuration >= vestingDuration) {
+            revert TokenVesting__CliffDurationIsGreaterThanVestingDuration();
+        }
+
+        // create VestingSchedule struct and store in mapping
+        vestingSchedules[beneficiary] = VestingSchedule({
+            totalAllocation: totalAllocation,
+            startTime: startTime,
+            cliffDuration: cliffDuration,
+            vestingDuration: vestingDuration,
+            amountClaimed: 0,
+            revoked: false
+        });
+
+        // add beneficiary to array for enumeration
+        beneficiaries.push(beneficiary);
+
+        // track total allocation across all beneficiaries
+        totalVestingAllocation += totalAllocation;
+
+        // emit event to log beneficiary addition
+        emit BeneficiaryAdded(beneficiary, totalAllocation, startTime, cliffDuration, vestingDuration);
+    }
 }
