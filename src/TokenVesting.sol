@@ -163,4 +163,8 @@ contract TokenVesting is Ownable {
     function getBeneficiariesLength() external view returns (uint256) {
         return beneficiaries.length;
     }
+
+    function getTotalVestingAllocation() external view returns (uint256) {
+        return totalVestingAllocation;
+    }
 }
