@@ -80,5 +80,11 @@ contract TokenVestingTest is Test {
         vm.expectRevert(TokenVesting.TokenVesting__InvalidVestingDuration.selector);
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, 0);
     }
+
+    function testAddBeneficiaryRevertsIfCliffDurationIsGreaterThanVestingDuration() public {
+        vm.prank(owner);
+        vm.expectRevert(TokenVesting.TokenVesting__CliffDurationIsGreaterThanVestingDuration.selector);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, 10 days);
+    }
 }
 
