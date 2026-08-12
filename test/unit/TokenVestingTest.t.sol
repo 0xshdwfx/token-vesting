@@ -62,5 +62,11 @@ contract TokenVestingTest is Test {
 
         vm.stopPrank();
     }
+
+    function testAddBeneficiaryRevertsIfTotalAllocatedIsZero() public {
+        vm.prank(owner);
+        vm.expectRevert(TokenVesting.TokenVesting__InvalidAllocationAmount.selector);
+        tokenVesting.addBeneficiary(beneficiary1, 0, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+    }
 }
 
