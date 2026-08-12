@@ -87,6 +87,13 @@ contract TokenVestingTest is Test {
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, 10 days);
     }
 
+    function testBeneficiaryIsAddedToBeneficiariesArray() public {
+        vm.prank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+        assertEq(tokenVesting.beneficiaries(0), beneficiary1);
+        assertEq(tokenVesting.getBeneficiariesLength(), 1);
+    }
+
     function testMultipleBeneficiariesAddedToArray() public {
         vm.startPrank(owner);
 
