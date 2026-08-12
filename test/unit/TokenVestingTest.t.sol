@@ -86,5 +86,20 @@ contract TokenVestingTest is Test {
         vm.expectRevert(TokenVesting.TokenVesting__CliffDurationIsGreaterThanVestingDuration.selector);
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, 10 days);
     }
+
+    function testMultipleBeneficiariesAddedToArray() public {
+        vm.startPrank(owner);
+
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+        tokenVesting.addBeneficiary(beneficiary2, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+        tokenVesting.addBeneficiary(beneficiary3, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        vm.stopPrank();
+
+        assertEq(tokenVesting.beneficiaries(0), beneficiary1, "First beneficiary at index 0");
+        assertEq(tokenVesting.beneficiaries(1), beneficiary2, "Second beneficiary at index 1");
+        assertEq(tokenVesting.beneficiaries(2), beneficiary3, "Third beneficiary at index 2");
+        assertEq(tokenVesting.getBeneficiariesLength(), 3, "Total length is 3");
+    }
 }
 
