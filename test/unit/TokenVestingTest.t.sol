@@ -49,4 +49,18 @@ contract TokenVestingTest is Test {
         vm.expectRevert(TokenVesting.TokenVesting__InvalidBeneficiaryAddress.selector);
         tokenVesting.addBeneficiary(address(0), ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
     }
+
+    function testAddBeneficiaryRevertsIfBeneficiaryAlreadyExists() public {
+        vm.startPrank(owner);
+
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(TokenVesting.TokenVesting__BeneficiaryAlreadyExists.selector, beneficiary1)
+        );
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        vm.stopPrank();
+    }
 }
+
