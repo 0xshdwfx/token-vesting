@@ -31,6 +31,7 @@ contract TokenVestingTest is Test {
     // errors
     error TokenVestingTest__TransferFailed();
 
+    // set up
     function setUp() public {
         vm.prank(owner);
         vestingToken = new VestingToken();
@@ -40,6 +41,15 @@ contract TokenVestingTest is Test {
 
         vm.prank(owner);
         if (!vestingToken.transfer(address(tokenVesting), 1_000_000e18)) revert TokenVestingTest__TransferFailed();
+    }
+
+    ///////////////////
+    /// Constructor ///
+    ///////////////////
+
+    function testDeployRevertsIfVestingTokenAddressIsZero() public {
+        vm.expectRevert(TokenVesting.TokenVesting__InvalidToken.selector);
+        new TokenVesting(address(0));
     }
 
     //////////////////////
