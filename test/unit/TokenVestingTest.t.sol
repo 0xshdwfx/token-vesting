@@ -90,8 +90,8 @@ contract TokenVestingTest is Test {
     function testBeneficiaryIsAddedToBeneficiariesArray() public {
         vm.prank(owner);
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
-        assertEq(tokenVesting.beneficiaries(0), beneficiary1);
-        assertEq(tokenVesting.getBeneficiariesLength(), 1);
+        assertEq(tokenVesting.beneficiaries(0), beneficiary1, "First beneficiary at index 0");
+        assertEq(tokenVesting.getBeneficiariesLength(), 1, "Total length is 1");
     }
 
     function testMultipleBeneficiariesAddedToArray() public {
@@ -107,6 +107,24 @@ contract TokenVestingTest is Test {
         assertEq(tokenVesting.beneficiaries(1), beneficiary2, "Second beneficiary at index 1");
         assertEq(tokenVesting.beneficiaries(2), beneficiary3, "Third beneficiary at index 2");
         assertEq(tokenVesting.getBeneficiariesLength(), 3, "Total length is 3");
+    }
+
+    function testTotalVestingAllocationIncreasesAfterBeneficiaryIsAdded() public {
+        vm.startPrank(owner);
+
+        uint256 totalVestingAllocationBeforeBeneficiaryAdded = tokenVesting.getTotalVestingAllocation();
+
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 totalVestingAllocationAfterBeneficiaryAdded = tokenVesting.getTotalVestingAllocation();
+
+        vm.stopPrank();
+
+        assertEq(
+            totalVestingAllocationAfterBeneficiaryAdded,
+            totalVestingAllocationBeforeBeneficiaryAdded + ALLOCATION,
+            "totalVestingAllocation should increase by exactly ALLOCATION"
+        );
     }
 }
 
