@@ -155,4 +155,12 @@ contract TokenVesting is Ownable {
         // emit event to log beneficiary addition
         emit BeneficiaryAdded(beneficiary, totalAllocation, startTime, cliffDuration, vestingDuration);
     }
+
+    ////////////////////////////
+    ///// Getter Functions /////
+    ///////////////////////////
+
+    function getBeneficiariesLength() external view returns (uint256) {
+        return beneficiaries.length;
+    }
 }
