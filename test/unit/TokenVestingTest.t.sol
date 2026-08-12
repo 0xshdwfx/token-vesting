@@ -19,8 +19,7 @@ contract TokenVestingTest is Test {
     uint256 public constant CLIFF_DURATION = 30 days;
     uint256 public constant VESTING_DURATION = 365 days;
 
-    error TokenVestingTest__TransferFailed();
-
+    // events
     event BeneficiaryAdded(
         address indexed beneficiary,
         uint256 totalAllocation,
@@ -28,6 +27,9 @@ contract TokenVestingTest is Test {
         uint256 cliffDuration,
         uint256 vestingDuration
     );
+
+    // errors
+    error TokenVestingTest__TransferFailed();
 
     function setUp() public {
         vm.prank(owner);
@@ -125,6 +127,15 @@ contract TokenVestingTest is Test {
             totalVestingAllocationBeforeBeneficiaryAdded + ALLOCATION,
             "totalVestingAllocation should increase by exactly ALLOCATION"
         );
+    }
+
+    function testAddBeneficiaryEmitsEvent() public {
+        vm.prank(owner);
+
+        vm.expectEmit(true, true, true, true, address(tokenVesting));
+        emit BeneficiaryAdded(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
     }
 }
 
