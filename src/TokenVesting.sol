@@ -156,6 +156,44 @@ contract TokenVesting is Ownable {
         emit BeneficiaryAdded(beneficiary, totalAllocation, startTime, cliffDuration, vestingDuration);
     }
 
+    /**
+     * @notice  Calculates the total amount of tokens that have vested for a beneficiary.
+     * @dev     Returns zero if the beneficiary does not exist, the schedule is revoked,
+     *          or the cliff period has not yet expired. Returns the full totalAllocation
+     *          once the entire vesting duration has elapsed. For timestamps between cliff
+     *          expiration and vesting period end, calculates a linear vesting amount based
+     *          on elapsed time as a fraction of the total vesting duration.
+     * @param   beneficiary Address of the beneficiary to query.
+     * @return  Total amount of tokens vested at block.timestamp, in wei. Does not account
+     *          for tokens already claimed.
+     */
+    function getVestedAmount(address beneficiary) external view returns (uint256) {
+        // check if beneficiary exists, if totalAllocation is not 0, they have a vesting schedule
+        if (vestingSchedules[beneficiary].totalAllocation == 0) return 0;
+
+        // check if schedule has been revoked
+        if (vestingSchedules[beneficiary].revoked == true) return 0;
+
+        // return 0 if cliff has not expired yet
+        uint256 cliffEnd = vestingSchedules[beneficiary].startTime + vestingSchedules[beneficiary].cliffDuration;
+        if (block.timestamp < cliffEnd) {
+            return 0;
+        }
+
+        // return totalAllocation if vestingDuration has passed
+        uint256 vestingPeriodEnd =
+            vestingSchedules[beneficiary].startTime + vestingSchedules[beneficiary].vestingDuration;
+        if (block.timestamp > vestingPeriodEnd) return vestingSchedules[beneficiary].totalAllocation;
+
+        // get fraction of vesting that has occured
+        uint256 vestedAmount =
+            (vestingSchedules[beneficiary].totalAllocation
+                    * (block.timestamp - vestingSchedules[beneficiary].startTime))
+                / vestingSchedules[beneficiary].vestingDuration;
+
+        return vestedAmount;
+    }
+
     ////////////////////////////
     ///// Getter Functions /////
     ///////////////////////////
