@@ -114,11 +114,13 @@ contract TokenVesting is Ownable {
         uint256 cliffDuration,
         uint256 vestingDuration
     ) external onlyOwner {
+        VestingSchedule storage userVestingSchedule = vestingSchedules[beneficiary];
+
         // validate beneficiary address is not zero
         if (beneficiary == address(0)) revert TokenVesting__InvalidBeneficiaryAddress();
 
         // validate beneficiary doesn't already exist
-        if (vestingSchedules[beneficiary].totalAllocation != 0) {
+        if (userVestingSchedule.totalAllocation != 0) {
             revert TokenVesting__BeneficiaryAlreadyExists(beneficiary);
         }
 
@@ -168,28 +170,27 @@ contract TokenVesting is Ownable {
      *          for tokens already claimed.
      */
     function getVestedAmount(address beneficiary) external view returns (uint256) {
+        VestingSchedule storage userVestingSchedule = vestingSchedules[beneficiary];
+
         // check if beneficiary exists, if totalAllocation is not 0, they have a vesting schedule
-        if (vestingSchedules[beneficiary].totalAllocation == 0) return 0;
+        if (userVestingSchedule.totalAllocation == 0) return 0;
 
         // check if schedule has been revoked
-        if (vestingSchedules[beneficiary].revoked == true) return 0;
+        if (userVestingSchedule.revoked == true) return 0;
 
         // return 0 if cliff has not expired yet
-        uint256 cliffEnd = vestingSchedules[beneficiary].startTime + vestingSchedules[beneficiary].cliffDuration;
+        uint256 cliffEnd = userVestingSchedule.startTime + userVestingSchedule.cliffDuration;
         if (block.timestamp < cliffEnd) {
             return 0;
         }
 
         // return totalAllocation if vestingDuration has passed
-        uint256 vestingPeriodEnd =
-            vestingSchedules[beneficiary].startTime + vestingSchedules[beneficiary].vestingDuration;
-        if (block.timestamp > vestingPeriodEnd) return vestingSchedules[beneficiary].totalAllocation;
+        uint256 vestingPeriodEnd = userVestingSchedule.startTime + userVestingSchedule.vestingDuration;
+        if (block.timestamp > vestingPeriodEnd) return userVestingSchedule.totalAllocation;
 
         // get fraction of vesting that has occured
-        uint256 vestedAmount =
-            (vestingSchedules[beneficiary].totalAllocation
-                    * (block.timestamp - vestingSchedules[beneficiary].startTime))
-                / vestingSchedules[beneficiary].vestingDuration;
+        uint256 vestedAmount = (userVestingSchedule.totalAllocation * (block.timestamp - userVestingSchedule.startTime))
+            / userVestingSchedule.vestingDuration;
 
         return vestedAmount;
     }
