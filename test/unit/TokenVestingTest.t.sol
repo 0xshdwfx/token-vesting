@@ -47,7 +47,7 @@ contract TokenVestingTest is Test {
     /// Constructor ///
     ///////////////////
 
-    function testDeployRevertsIfVestingTokenAddressIsZero() public {
+    function test_Constructor_Reverts_WhenVestingTokenAddressIsZero() public {
         vm.expectRevert(TokenVesting.TokenVesting__InvalidToken.selector);
         new TokenVesting(address(0));
     }
@@ -56,13 +56,13 @@ contract TokenVestingTest is Test {
     /// addBeneficiary ///
     //////////////////////
 
-    function testAddBeneficiaryRevertsIfBeneficiaryIsZeroAddress() public {
+    function test_AddBeneficiary_Reverts_WhenBeneficiaryIsZeroAddress() public {
         vm.prank(owner);
         vm.expectRevert(TokenVesting.TokenVesting__InvalidBeneficiaryAddress.selector);
         tokenVesting.addBeneficiary(address(0), ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
     }
 
-    function testAddBeneficiaryRevertsIfBeneficiaryAlreadyExists() public {
+    function test_AddBeneficiary_Reverts_WhenBeneficiaryAlreadyExists() public {
         vm.startPrank(owner);
 
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
@@ -75,38 +75,38 @@ contract TokenVestingTest is Test {
         vm.stopPrank();
     }
 
-    function testAddBeneficiaryRevertsIfTotalAllocatedIsZero() public {
+    function test_AddBeneficiary_Reverts_WhenAllocationIsZero() public {
         vm.prank(owner);
         vm.expectRevert(TokenVesting.TokenVesting__InvalidAllocationAmount.selector);
         tokenVesting.addBeneficiary(beneficiary1, 0, START_TIME, CLIFF_DURATION, VESTING_DURATION);
     }
 
-    function testAddBeneficiaryRevertsIfStartTimeIsZero() public {
+    function test_AddBeneficiary_Reverts_WhenStartTimeIsZero() public {
         vm.prank(owner);
         vm.expectRevert(TokenVesting.TokenVesting__InvalidStartTime.selector);
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, 0, CLIFF_DURATION, VESTING_DURATION);
     }
 
-    function testAddBeneficiaryRevertsIfVestingDurationIsZero() public {
+    function test_AddBeneficiary_Reverts_WhenVestingDurationIsZero() public {
         vm.prank(owner);
         vm.expectRevert(TokenVesting.TokenVesting__InvalidVestingDuration.selector);
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, 0);
     }
 
-    function testAddBeneficiaryRevertsIfCliffDurationIsGreaterThanVestingDuration() public {
+    function test_AddBeneficiary_Reverts_WhenCliffDurationIsGreaterThanVestingDuration() public {
         vm.prank(owner);
         vm.expectRevert(TokenVesting.TokenVesting__CliffDurationIsGreaterThanVestingDuration.selector);
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, 10 days);
     }
 
-    function testBeneficiaryIsAddedToBeneficiariesArray() public {
+    function test_AddBeneficiary_StoresBeneficiary_WhenValid() public {
         vm.prank(owner);
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
         assertEq(tokenVesting.beneficiaries(0), beneficiary1, "First beneficiary at index 0");
         assertEq(tokenVesting.getBeneficiariesLength(), 1, "Total length is 1");
     }
 
-    function testMultipleBeneficiariesAddedToArray() public {
+    function test_AddBeneficiary_StoresMultipleBeneficiaries_WhenMultipleAdded() public {
         vm.startPrank(owner);
 
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
@@ -121,7 +121,7 @@ contract TokenVestingTest is Test {
         assertEq(tokenVesting.getBeneficiariesLength(), 3, "Total length is 3");
     }
 
-    function testTotalVestingAllocationIncreasesAfterBeneficiaryIsAdded() public {
+    function test_AddBeneficiary_IncreasesTotalVestingAllocation_WhenBeneficiaryAdded() public {
         vm.startPrank(owner);
 
         uint256 totalVestingAllocationBeforeBeneficiaryAdded = tokenVesting.getTotalVestingAllocation();
@@ -139,7 +139,7 @@ contract TokenVestingTest is Test {
         );
     }
 
-    function testAddBeneficiaryEmitsEvent() public {
+    function test_AddBeneficiary_EmitsBeneficiaryAddedEvent_WhenValidBeneficiaryAdded() public {
         vm.prank(owner);
 
         vm.expectEmit(true, true, true, true, address(tokenVesting));
@@ -147,5 +147,9 @@ contract TokenVestingTest is Test {
 
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
     }
+
+    ////////////////////////
+    /// getVestedAmount ///
+    //////////////////////
 }
 
