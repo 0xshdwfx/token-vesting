@@ -151,5 +151,11 @@ contract TokenVestingTest is Test {
     ////////////////////////
     /// getVestedAmount ///
     //////////////////////
+
+    function test_GetVestedAmount_ReturnsZero_WhenBeneficiaryDoesNotExist() public view {
+        uint256 vestedAmount = tokenVesting.getVestedAmount(beneficiary1);
+
+        assertEq(vestedAmount, 0);
+    }
 }
 
