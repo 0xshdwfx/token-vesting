@@ -2,6 +2,7 @@
 pragma solidity ^0.8.26;
 
 import {Test} from "forge-std/Test.sol";
+import {console} from "forge-std/console.sol";
 import {TokenVesting} from "../../src/TokenVesting.sol";
 import {VestingToken} from "../../src/VestingToken.sol";
 
@@ -152,10 +153,23 @@ contract TokenVestingTest is Test {
     /// getVestedAmount ///
     //////////////////////
 
-    function test_GetVestedAmount_ReturnsZero_WhenBeneficiaryDoesNotExist() public view {
+    function test_GetVestedAmount_ReturnsZero_WhenBeneficiaryDoesNotExist() public {
         uint256 vestedAmount = tokenVesting.getVestedAmount(beneficiary1);
 
-        assertEq(vestedAmount, 0);
+        assertEq(vestedAmount, 0, "getVestedAmount should return 0 when does not exist");
+    }
+
+    function test_GetVestedAmount_ReturnsZero_WhenBeneficiaryVestingScheduleHasBeenRevoked() public {
+        vm.startPrank(owner);
+
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        tokenVesting.revokeSchedule(beneficiary1);
+
+        vm.stopPrank();
+
+        uint256 vestedAmount = tokenVesting.getVestedAmount(beneficiary1);
+        assertEq(vestedAmount, 0, "getVestedAmount should return 0 when schedule has been revoked");
     }
 }
 
