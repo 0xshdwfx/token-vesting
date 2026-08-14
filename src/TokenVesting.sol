@@ -32,6 +32,7 @@ contract TokenVesting is Ownable {
         uint256 vestingDuration;
         uint256 amountClaimed;
         bool revoked;
+        uint256 amountVestedAtRevocation;
     }
 
     ////////////////////////
@@ -54,6 +55,7 @@ contract TokenVesting is Ownable {
         uint256 cliffDuration,
         uint256 vestingDuration
     );
+    event BeneficiaryVestingScheduleRevoked(address indexed beneficiary, uint256 amountVestedAtRevocation);
 
     /////////////////
     /// Errors //////
@@ -66,6 +68,8 @@ contract TokenVesting is Ownable {
     error TokenVesting__InvalidVestingDuration();
     error TokenVesting__CliffDurationIsGreaterThanVestingDuration();
     error TokenVesting__BeneficiaryAlreadyExists(address beneficiary);
+    error TokenVesting__ScheduleAlreadyRevoked();
+    error TokenVesting__BeneficiaryDoesNotExist(address beneficiary);
 
     //////////////////////
     //// Constructor ////
@@ -145,7 +149,8 @@ contract TokenVesting is Ownable {
             cliffDuration: cliffDuration,
             vestingDuration: vestingDuration,
             amountClaimed: 0,
-            revoked: false
+            revoked: false,
+            amountVestedAtRevocation: 0
         });
 
         // add beneficiary to array for enumeration
@@ -169,7 +174,7 @@ contract TokenVesting is Ownable {
      * @return  Total amount of tokens vested at block.timestamp, in wei. Does not account
      *          for tokens already claimed.
      */
-    function getVestedAmount(address beneficiary) external view returns (uint256) {
+    function getVestedAmount(address beneficiary) public view returns (uint256) {
         VestingSchedule storage userVestingSchedule = vestingSchedules[beneficiary];
 
         // check if beneficiary exists, if totalAllocation is not 0, they have a vesting schedule
@@ -193,6 +198,31 @@ contract TokenVesting is Ownable {
             / userVestingSchedule.vestingDuration;
 
         return vestedAmount;
+    }
+
+    /**
+     * @notice  Revokes a beneficiary's vesting schedule, preventing future vesting.
+     * @dev     Only the contract owner can call this function. Captures the vested amount
+     *          at the time of revocation, allowing the beneficiary to claim tokens vested
+     *          up to that moment. Future vesting stops immediately upon revocation.
+     *          Emits BeneficiaryVestingScheduleRevoked event with the claimable amount.
+     * @param   beneficiary Address of the beneficiary whose vesting schedule will be revoked.
+     * @custom:error TokenVesting__BeneficiaryDoesNotExist if beneficiary has no vesting schedule.
+     * @custom:error TokenVesting__ScheduleAlreadyRevoked if the schedule is already revoked.
+     */
+    function revokeSchedule(address beneficiary) external onlyOwner {
+        VestingSchedule storage userVestingSchedule = vestingSchedules[beneficiary];
+
+        if (userVestingSchedule.revoked == true) revert TokenVesting__ScheduleAlreadyRevoked();
+        if (userVestingSchedule.totalAllocation == 0) {
+            revert TokenVesting__BeneficiaryDoesNotExist(beneficiary);
+        }
+
+        userVestingSchedule.revoked = true;
+
+        userVestingSchedule.amountVestedAtRevocation = getVestedAmount(beneficiary);
+
+        emit BeneficiaryVestingScheduleRevoked(beneficiary, userVestingSchedule.amountVestedAtRevocation);
     }
 
     ////////////////////////////
