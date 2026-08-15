@@ -180,7 +180,21 @@ contract TokenVestingTest is Test {
         vm.warp(cliffEnd - 1);
 
         uint256 vestedAmount = tokenVesting.getVestedAmount(beneficiary1);
-        assertEq(vestedAmount, 0);
+        assertEq(vestedAmount, 0, "getVestedAmount should return 0 when cliff has not expired");
+    }
+
+    function test_GetVestedAmount_ReturnsTotalAllocation_WhenVestingDurationHasPassed() public {
+        vm.prank(owner);
+
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 vestingPeriodEnd = START_TIME + VESTING_DURATION;
+        vm.warp(vestingPeriodEnd + 1);
+
+        uint256 vestedAmount = tokenVesting.getVestedAmount(beneficiary1);
+        assertEq(
+            vestedAmount, ALLOCATION, "getVestedAmount should return total allocation when vesting duration has passed"
+        );
     }
 }
 
