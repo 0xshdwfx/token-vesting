@@ -153,9 +153,8 @@ contract TokenVestingTest is Test {
     /// getVestedAmount ///
     //////////////////////
 
-    function test_GetVestedAmount_ReturnsZero_WhenBeneficiaryDoesNotExist() public {
+    function test_GetVestedAmount_ReturnsZero_WhenBeneficiaryDoesNotExist() public view {
         uint256 vestedAmount = tokenVesting.getVestedAmount(beneficiary1);
-
         assertEq(vestedAmount, 0, "getVestedAmount should return 0 when does not exist");
     }
 
@@ -170,6 +169,18 @@ contract TokenVestingTest is Test {
 
         uint256 vestedAmount = tokenVesting.getVestedAmount(beneficiary1);
         assertEq(vestedAmount, 0, "getVestedAmount should return 0 when schedule has been revoked");
+    }
+
+    function test_GetVestedAmount_ReturnsZero_WhenCliffHasNotExpired() public {
+        vm.prank(owner);
+
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 cliffEnd = START_TIME + CLIFF_DURATION;
+        vm.warp(cliffEnd - 1);
+
+        uint256 vestedAmount = tokenVesting.getVestedAmount(beneficiary1);
+        assertEq(vestedAmount, 0);
     }
 }
 
