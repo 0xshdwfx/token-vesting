@@ -196,5 +196,21 @@ contract TokenVestingTest is Test {
             vestedAmount, ALLOCATION, "getVestedAmount should return total allocation when vesting duration has passed"
         );
     }
+
+    function test_GetVestedAmount_ReturnsLinearVestedAmount_WhenBetweenCliffAndEnd() public {
+        vm.prank(owner);
+
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        // calculate a time between after cliff and before vesting end
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + (VESTING_DURATION / 2);
+
+        vm.warp(midVestingTime);
+
+        uint256 fractionOfVested = (ALLOCATION * (midVestingTime - START_TIME)) / VESTING_DURATION;
+
+        uint256 vestedAmount = tokenVesting.getVestedAmount(beneficiary1);
+        assertEq(vestedAmount, fractionOfVested, "getVestedAmount should return the amount vested at this time");
+    }
 }
 
