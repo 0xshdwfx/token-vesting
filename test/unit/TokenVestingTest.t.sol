@@ -212,5 +212,25 @@ contract TokenVestingTest is Test {
         uint256 vestedAmount = tokenVesting.getVestedAmount(beneficiary1);
         assertEq(vestedAmount, fractionOfVested, "getVestedAmount should return the amount vested at this time");
     }
+
+    ///////////////////////
+    /// revokeSchedule ///
+    /////////////////////
+
+    function test_RevokeSchedule_Reverts_WhenBeneficiaryIsAlreadyRevoked() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        // initial revoke state = false
+        // first call changes revoke state = true
+        tokenVesting.revokeSchedule(beneficiary1);
+
+        vm.expectRevert(TokenVesting.TokenVesting__ScheduleAlreadyRevoked.selector);
+
+        // second call tests revert if revoke stake = true
+        tokenVesting.revokeSchedule(beneficiary1);
+
+        vm.stopPrank();
+    }
 }
 
