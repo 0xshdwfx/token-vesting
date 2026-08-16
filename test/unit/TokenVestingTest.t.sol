@@ -28,6 +28,7 @@ contract TokenVestingTest is Test {
         uint256 cliffDuration,
         uint256 vestingDuration
     );
+    event BeneficiaryVestingScheduleRevoked(address indexed beneficiary, uint256 amountVestedAtRevocation);
 
     // errors
     error TokenVestingTest__TransferFailed();
@@ -241,6 +242,20 @@ contract TokenVestingTest is Test {
         );
 
         tokenVesting.revokeSchedule(beneficiary1);
+    }
+
+    function test_RevokeSchedule_EmitsBeneficiaryVestingScheduleRevokedEvent_WhenScheduleRevoked() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 expectedAmountVestedAtRevocation = tokenVesting.getVestedAmount(beneficiary1);
+
+        vm.expectEmit(true, false, false, true, address(tokenVesting));
+        emit BeneficiaryVestingScheduleRevoked(beneficiary1, expectedAmountVestedAtRevocation);
+
+        tokenVesting.revokeSchedule(beneficiary1);
+
+        vm.stopPrank();
     }
 }
 
