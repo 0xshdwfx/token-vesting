@@ -232,5 +232,15 @@ contract TokenVestingTest is Test {
 
         vm.stopPrank();
     }
+
+    function test_RevokeSchedule_Reverts_WhenBeneficiaryDoesNotExist() public {
+        vm.prank(owner);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(TokenVesting.TokenVesting__BeneficiaryDoesNotExist.selector, beneficiary1)
+        );
+
+        tokenVesting.revokeSchedule(beneficiary1);
+    }
 }
 
