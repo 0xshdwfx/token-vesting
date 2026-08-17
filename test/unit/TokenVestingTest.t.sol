@@ -283,5 +283,19 @@ contract TokenVestingTest is Test {
 
         assertEq(fractionOfVested, vestedAmountClaimed, "claimVestedTokens should return correct vested fraction");
     }
+
+    function test_ClaimVestedTokens_Reverts_WhenVestedTokensClaimedEqualsZero() public {
+        vm.prank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        // attempting to claim before cliff expires - getVestedAmount() returns 0
+        // already claimed is 0, so difference is 0
+        uint256 cliffEnd = START_TIME + CLIFF_DURATION;
+        vm.warp(cliffEnd - 1);
+
+        vm.expectRevert(TokenVesting.TokenVesting__ZeroTokensToClaim.selector);
+
+        tokenVesting.claimVestedTokens(beneficiary1);
+    }
 }
 
