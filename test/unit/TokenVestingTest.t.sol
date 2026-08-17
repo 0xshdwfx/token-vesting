@@ -269,5 +269,19 @@ contract TokenVestingTest is Test {
 
         tokenVesting.claimVestedTokens(beneficiary1);
     }
+
+    function test_ClaimVestedTokens_ReturnsCorrectAmount_WhenMidVesting() public {
+        vm.prank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + (VESTING_DURATION / 2);
+        vm.warp(midVestingTime);
+
+        uint256 fractionOfVested = (ALLOCATION * (midVestingTime - START_TIME)) / VESTING_DURATION;
+
+        uint256 vestedAmountClaimed = tokenVesting.claimVestedTokens(beneficiary1);
+
+        assertEq(fractionOfVested, vestedAmountClaimed, "claimVestedTokens should return correct vested fraction");
+    }
 }
 
