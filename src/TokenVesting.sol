@@ -228,6 +228,18 @@ contract TokenVesting is Ownable {
         emit BeneficiaryVestingScheduleRevoked(beneficiary, userVestingSchedule.amountVestedAtRevocation);
     }
 
+    /**
+     * @notice  Claims and transfers vested tokens to the beneficiary.
+     * @dev     Only callable by external parties. Calculates claimable amount as the difference
+     *          between total vested and already claimed tokens. Reverts if beneficiary does not
+     *          exist, has no claimable tokens, or if the token transfer fails. Emits TokensClaimed
+     *          event and updates amountClaimed state.
+     * @param   beneficiary Address of the beneficiary claiming their vested tokens.
+     * @return  The amount of tokens successfully transferred to the beneficiary.
+     * @custom:error TokenVesting__BeneficiaryDoesNotExist if beneficiary has no vesting schedule.
+     * @custom:error TokenVesting__ZeroTokensToClaim if no tokens are currently claimable.
+     * @custom:error TokenVesting__TransferFailed if the ERC20 token transfer fails.
+     */
     function claimVestedTokens(address beneficiary) external returns (uint256) {
         VestingSchedule storage userVestingSchedule = vestingSchedules[beneficiary];
 
