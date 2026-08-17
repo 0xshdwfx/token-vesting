@@ -154,7 +154,7 @@ contract TokenVestingTest is Test {
     /// getVestedAmount ///
     //////////////////////
 
-    function test_GetVestedAmount_ReturnsZero_WhenBeneficiaryDoesNotExist() public view {
+    function test_GetVestedAmount_ReturnsZero_WhenBeneficiaryDoesNotExist() public {
         uint256 vestedAmount = tokenVesting.getVestedAmount(beneficiary1);
         assertEq(vestedAmount, 0, "getVestedAmount should return 0 when does not exist");
     }
@@ -296,6 +296,30 @@ contract TokenVestingTest is Test {
         vm.expectRevert(TokenVesting.TokenVesting__ZeroTokensToClaim.selector);
 
         tokenVesting.claimVestedTokens(beneficiary1);
+    }
+
+    function test_ClaimVestedTokens_UpdatesAmountClaimed_WhenClaimingAtMidVesting() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + (VESTING_DURATION / 2);
+        vm.warp(midVestingTime);
+
+        uint256 totalAmountClaimedBeforeBeneficiaryClaimed = tokenVesting.getVestingSchedule(beneficiary1).amountClaimed;
+
+        tokenVesting.claimVestedTokens(beneficiary1);
+
+        uint256 totalAmountClaimedAfterBeneficiaryClaimed = tokenVesting.getVestingSchedule(beneficiary1).amountClaimed;
+
+        uint256 expectedClaimed = (ALLOCATION * (midVestingTime - START_TIME)) / VESTING_DURATION;
+
+        vm.stopPrank();
+
+        assertEq(
+            totalAmountClaimedAfterBeneficiaryClaimed,
+            totalAmountClaimedBeforeBeneficiaryClaimed + expectedClaimed,
+            "amountClaimed should increase by claimed amount"
+        );
     }
 }
 
