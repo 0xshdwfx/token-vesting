@@ -257,5 +257,17 @@ contract TokenVestingTest is Test {
 
         vm.stopPrank();
     }
+
+    //////////////////////////
+    /// claimVestedTokens ///
+    ////////////////////////
+
+    function test_ClaimVestedTokens_Reverts_WhenBeneficiaryDoesNotExist() public {
+        vm.expectRevert(
+            abi.encodeWithSelector(TokenVesting.TokenVesting__BeneficiaryDoesNotExist.selector, beneficiary1)
+        );
+
+        tokenVesting.claimVestedTokens(beneficiary1);
+    }
 }
 
