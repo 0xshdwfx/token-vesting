@@ -29,6 +29,7 @@ contract TokenVestingTest is Test {
         uint256 vestingDuration
     );
     event BeneficiaryVestingScheduleRevoked(address indexed beneficiary, uint256 amountVestedAtRevocation);
+    event TokensClaimed(address indexed beneficiary, uint256 tokenAmountClaimed);
 
     // errors
     error TokenVestingTest__TransferFailed();
@@ -351,6 +352,23 @@ contract TokenVestingTest is Test {
             totalAmountClaimedBeforeBeneficiaryClaimed + expectedClaimed,
             "amountClaimed should increase by claimed amount"
         );
+    }
+
+    function test_ClaimVestedTokens_EmitsTokensClaimedEvent_WhenVestedTokensClaimed() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + (VESTING_DURATION / 2);
+        vm.warp(midVestingTime);
+
+        uint256 amountClaimed = (ALLOCATION * (midVestingTime - START_TIME)) / VESTING_DURATION;
+
+        vm.expectEmit(true, false, false, true, address(tokenVesting));
+        emit TokensClaimed(beneficiary1, amountClaimed);
+
+        tokenVesting.claimVestedTokens(beneficiary1);
+
+        vm.stopPrank();
     }
 }
 
