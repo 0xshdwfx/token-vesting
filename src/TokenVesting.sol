@@ -262,6 +262,17 @@ contract TokenVesting is Ownable {
         return vestedTokensClaimed;
     }
 
+    /**
+     * @notice  Recovers unvested tokens from a revoked beneficiary's allocation.
+     * @dev     Only the contract owner can call this function. Transfers unvested tokens
+     *          (totalAllocation - amountVestedAtRevocation) back to the owner. Validates that
+     *          the beneficiary exists, their schedule is revoked, and there are tokens to recover.
+     *          Emits UnvestedTokensReclaimed event for transparency.
+     * @param   beneficiary Address of the revoked beneficiary whose unvested tokens will be recovered.
+     * @custom:error TokenVesting__BeneficiaryDoesNotExist if beneficiary has no vesting schedule.
+     * @custom:error TokenVesting__ScheduleNotRevoked if the beneficiary's schedule is not revoked.
+     * @custom:error TokenVesting__NothingToReclaim if all tokens were vested before revocation.
+     */
     function reclaimUnvestedTokens(address beneficiary) external onlyOwner {
         VestingSchedule storage userVestingSchedule = vestingSchedules[beneficiary];
 
