@@ -71,7 +71,6 @@ contract TokenVesting is Ownable {
     error TokenVesting__BeneficiaryAlreadyExists(address beneficiary);
     error TokenVesting__ScheduleAlreadyRevoked();
     error TokenVesting__BeneficiaryDoesNotExist(address beneficiary);
-    error TokenVesting__TransferFailed();
     error TokenVesting__ZeroTokensToClaim();
 
     //////////////////////
@@ -231,14 +230,14 @@ contract TokenVesting is Ownable {
     /**
      * @notice  Claims and transfers vested tokens to the beneficiary.
      * @dev     Only callable by external parties. Calculates claimable amount as the difference
-     *          between total vested and already claimed tokens. Reverts if beneficiary does not
-     *          exist, has no claimable tokens, or if the token transfer fails. Emits TokensClaimed
-     *          event and updates amountClaimed state.
+     *          between total vested and already claimed tokens. Uses SafeERC20 for secure token
+     *          transfers that handle both standard and non-standard ERC20 implementations. Reverts
+     *          if beneficiary does not exist or has no claimable tokens. Emits TokensClaimed event
+     *          and updates amountClaimed state.
      * @param   beneficiary Address of the beneficiary claiming their vested tokens.
      * @return  The amount of tokens successfully transferred to the beneficiary.
      * @custom:error TokenVesting__BeneficiaryDoesNotExist if beneficiary has no vesting schedule.
      * @custom:error TokenVesting__ZeroTokensToClaim if no tokens are currently claimable.
-     * @custom:error TokenVesting__TransferFailed if the ERC20 token transfer fails.
      */
     function claimVestedTokens(address beneficiary) external returns (uint256) {
         VestingSchedule storage userVestingSchedule = vestingSchedules[beneficiary];
@@ -251,8 +250,7 @@ contract TokenVesting is Ownable {
 
         if (vestedTokensClaimed == 0) revert TokenVesting__ZeroTokensToClaim();
 
-        bool success = VESTING_TOKEN.transfer(beneficiary, vestedTokensClaimed);
-        if (!success) revert TokenVesting__TransferFailed();
+        VESTING_TOKEN.safeTransfer(beneficiary, vestedTokensClaimed);
 
         userVestingSchedule.amountClaimed += vestedTokensClaimed;
 
