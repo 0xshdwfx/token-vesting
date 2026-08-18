@@ -298,6 +298,37 @@ contract TokenVestingTest is Test {
         tokenVesting.claimVestedTokens(beneficiary1);
     }
 
+    function test_ClaimVestedTokens_TransfersTokensToBeneficiary_WhenClaimingMidVesting() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + (VESTING_DURATION / 2);
+        vm.warp(midVestingTime);
+
+        uint256 vestingTokenBalanceBeforeTransfer = vestingToken.balanceOf(address(tokenVesting));
+        uint256 beneficiaryBalanceBeforeTransfer = vestingToken.balanceOf(address(beneficiary1));
+
+        tokenVesting.claimVestedTokens(beneficiary1);
+
+        uint256 vestingTokenBalanceAfterTransfer = vestingToken.balanceOf(address(tokenVesting));
+        uint256 beneficiaryBalanceAfterTransfer = vestingToken.balanceOf(address(beneficiary1));
+
+        uint256 amountClaimed = (ALLOCATION * (midVestingTime - START_TIME)) / VESTING_DURATION;
+
+        vm.stopPrank();
+
+        assertEq(
+            vestingTokenBalanceAfterTransfer,
+            vestingTokenBalanceBeforeTransfer - amountClaimed,
+            "contract vestingToken balance should decrease by amount claimed"
+        );
+        assertEq(
+            beneficiaryBalanceAfterTransfer,
+            beneficiaryBalanceBeforeTransfer + amountClaimed,
+            "beneficiary balance should increase by amount claimed"
+        );
+    }
+
     function test_ClaimVestedTokens_UpdatesAmountClaimed_WhenClaimingAtMidVesting() public {
         vm.startPrank(owner);
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
