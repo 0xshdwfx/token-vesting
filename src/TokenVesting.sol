@@ -57,6 +57,7 @@ contract TokenVesting is Ownable {
     );
     event BeneficiaryVestingScheduleRevoked(address indexed beneficiary, uint256 amountVestedAtRevocation);
     event TokensClaimed(address indexed beneficiary, uint256 tokenAmountClaimed);
+    event UnvestedTokensReclaimed(address beneficiary, uint256 amountReclaimed);
 
     /////////////////
     /// Errors //////
@@ -72,6 +73,8 @@ contract TokenVesting is Ownable {
     error TokenVesting__ScheduleAlreadyRevoked();
     error TokenVesting__BeneficiaryDoesNotExist(address beneficiary);
     error TokenVesting__ZeroTokensToClaim();
+    error TokenVesting__ScheduleNotRevoked();
+    error TokenVesting__NothingToReclaim();
 
     //////////////////////
     //// Constructor ////
@@ -257,6 +260,24 @@ contract TokenVesting is Ownable {
         emit TokensClaimed(beneficiary, vestedTokensClaimed);
 
         return vestedTokensClaimed;
+    }
+
+    function reclaimUnvestedTokens(address beneficiary) external onlyOwner {
+        VestingSchedule storage userVestingSchedule = vestingSchedules[beneficiary];
+
+        if (userVestingSchedule.totalAllocation == 0) {
+            revert TokenVesting__BeneficiaryDoesNotExist(beneficiary);
+        }
+
+        if (userVestingSchedule.revoked == false) revert TokenVesting__ScheduleNotRevoked();
+
+        uint256 amountToReclaim = userVestingSchedule.totalAllocation - userVestingSchedule.amountVestedAtRevocation;
+
+        if (amountToReclaim == 0) revert TokenVesting__NothingToReclaim();
+
+        VESTING_TOKEN.safeTransfer(owner(), amountToReclaim);
+
+        emit UnvestedTokensReclaimed(beneficiary, amountToReclaim);
     }
 
     ////////////////////////////
