@@ -370,5 +370,21 @@ contract TokenVestingTest is Test {
 
         vm.stopPrank();
     }
+
+    //////////////////////////////
+    /// reclaimUnvestedTokens ///
+    ////////////////////////////
+
+    function test_ReclaimUnvestedTokens_Reverts_WhenBeneficiaryDoesNotExist() public {
+        vm.startPrank(owner);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(TokenVesting.TokenVesting__BeneficiaryDoesNotExist.selector, beneficiary1)
+        );
+
+        tokenVesting.reclaimUnvestedTokens(beneficiary1);
+
+        vm.stopPrank();
+    }
 }
 
