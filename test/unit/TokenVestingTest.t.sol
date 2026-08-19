@@ -205,8 +205,7 @@ contract TokenVestingTest is Test {
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
 
         // calculate a time between after cliff and before vesting end
-        uint256 midVestingTime = START_TIME + CLIFF_DURATION + (VESTING_DURATION / 2);
-
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + ((VESTING_DURATION - CLIFF_DURATION) / 2);
         vm.warp(midVestingTime);
 
         uint256 fractionOfVested = (ALLOCATION * (midVestingTime - START_TIME)) / VESTING_DURATION;
@@ -275,7 +274,7 @@ contract TokenVestingTest is Test {
         vm.prank(owner);
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
 
-        uint256 midVestingTime = START_TIME + CLIFF_DURATION + (VESTING_DURATION / 2);
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + ((VESTING_DURATION - CLIFF_DURATION) / 2);
         vm.warp(midVestingTime);
 
         uint256 fractionOfVested = (ALLOCATION * (midVestingTime - START_TIME)) / VESTING_DURATION;
@@ -303,7 +302,7 @@ contract TokenVestingTest is Test {
         vm.startPrank(owner);
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
 
-        uint256 midVestingTime = START_TIME + CLIFF_DURATION + (VESTING_DURATION / 2);
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + ((VESTING_DURATION - CLIFF_DURATION) / 2);
         vm.warp(midVestingTime);
 
         uint256 vestingTokenBalanceBeforeTransfer = vestingToken.balanceOf(address(tokenVesting));
@@ -334,7 +333,7 @@ contract TokenVestingTest is Test {
         vm.startPrank(owner);
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
 
-        uint256 midVestingTime = START_TIME + CLIFF_DURATION + (VESTING_DURATION / 2);
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + ((VESTING_DURATION - CLIFF_DURATION) / 2);
         vm.warp(midVestingTime);
 
         uint256 totalAmountClaimedBeforeBeneficiaryClaimed = tokenVesting.getVestingSchedule(beneficiary1).amountClaimed;
@@ -358,7 +357,7 @@ contract TokenVestingTest is Test {
         vm.startPrank(owner);
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
 
-        uint256 midVestingTime = START_TIME + CLIFF_DURATION + (VESTING_DURATION / 2);
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + ((VESTING_DURATION - CLIFF_DURATION) / 2);
         vm.warp(midVestingTime);
 
         uint256 amountClaimed = (ALLOCATION * (midVestingTime - START_TIME)) / VESTING_DURATION;
@@ -402,7 +401,7 @@ contract TokenVestingTest is Test {
         vm.startPrank(owner);
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
 
-        uint256 midVestingTime = START_TIME + CLIFF_DURATION + (VESTING_DURATION / 2);
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + ((VESTING_DURATION - CLIFF_DURATION) / 2);
         vm.warp(midVestingTime);
 
         tokenVesting.revokeSchedule(beneficiary1);
