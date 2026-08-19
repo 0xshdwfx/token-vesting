@@ -30,6 +30,7 @@ contract TokenVestingTest is Test {
     );
     event BeneficiaryVestingScheduleRevoked(address indexed beneficiary, uint256 amountVestedAtRevocation);
     event TokensClaimed(address indexed beneficiary, uint256 tokenAmountClaimed);
+    event UnvestedTokensReclaimed(address beneficiary, uint256 amountReclaimed);
 
     // errors
     error TokenVestingTest__TransferFailed();
@@ -435,6 +436,26 @@ contract TokenVestingTest is Test {
         tokenVesting.revokeSchedule(beneficiary1);
 
         vm.expectRevert(TokenVesting.TokenVesting__NothingToReclaim.selector);
+
+        tokenVesting.reclaimUnvestedTokens(beneficiary1);
+
+        vm.stopPrank();
+    }
+
+    function test_ReclaimUnvestedTokens_EmitsUnvestedTokensReclaimedEvent_WhenReclaimingAtMidVesting() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + ((VESTING_DURATION - CLIFF_DURATION) / 2);
+        vm.warp(midVestingTime);
+
+        tokenVesting.revokeSchedule(beneficiary1);
+
+        uint256 amountToReclaim = tokenVesting.getVestingSchedule(beneficiary1).totalAllocation
+            - tokenVesting.getVestingSchedule(beneficiary1).amountVestedAtRevocation;
+
+        vm.expectEmit(true, false, false, true, address(tokenVesting));
+        emit UnvestedTokensReclaimed(beneficiary1, amountToReclaim);
 
         tokenVesting.reclaimUnvestedTokens(beneficiary1);
 
