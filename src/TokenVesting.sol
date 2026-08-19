@@ -223,9 +223,9 @@ contract TokenVesting is Ownable {
             revert TokenVesting__BeneficiaryDoesNotExist(beneficiary);
         }
 
-        userVestingSchedule.revoked = true;
-
         userVestingSchedule.amountVestedAtRevocation = getVestedAmount(beneficiary);
+
+        userVestingSchedule.revoked = true;
 
         emit BeneficiaryVestingScheduleRevoked(beneficiary, userVestingSchedule.amountVestedAtRevocation);
     }

@@ -423,5 +423,22 @@ contract TokenVestingTest is Test {
             "owner's token balance should increase by the expected reclaimable amount"
         );
     }
+
+    function test_ReclaimUnvestedTokens_Reverts_WhenAmountToReclaimIsZero() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        // warp to 100% vested
+        uint256 vestingPeriodEnd = START_TIME + VESTING_DURATION;
+        vm.warp(vestingPeriodEnd);
+
+        tokenVesting.revokeSchedule(beneficiary1);
+
+        vm.expectRevert(TokenVesting.TokenVesting__NothingToReclaim.selector);
+
+        tokenVesting.reclaimUnvestedTokens(beneficiary1);
+
+        vm.stopPrank();
+    }
 }
 
