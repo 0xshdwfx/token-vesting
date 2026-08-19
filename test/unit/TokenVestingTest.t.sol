@@ -155,7 +155,7 @@ contract TokenVestingTest is Test {
     /// getVestedAmount ///
     //////////////////////
 
-    function test_GetVestedAmount_ReturnsZero_WhenBeneficiaryDoesNotExist() public {
+    function test_GetVestedAmount_ReturnsZero_WhenBeneficiaryDoesNotExist() public view {
         uint256 vestedAmount = tokenVesting.getVestedAmount(beneficiary1);
         assertEq(vestedAmount, 0, "getVestedAmount should return 0 when does not exist");
     }
@@ -396,6 +396,33 @@ contract TokenVestingTest is Test {
         tokenVesting.reclaimUnvestedTokens(beneficiary1);
 
         vm.stopPrank();
+    }
+
+    function test_ReclaimUnvestedTokens_TransfersCorrectAmount_WhenRevokedAtMidVesting() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + (VESTING_DURATION / 2);
+        vm.warp(midVestingTime);
+
+        tokenVesting.revokeSchedule(beneficiary1);
+
+        uint256 expectedReclaimableAmount = tokenVesting.getVestingSchedule(beneficiary1).totalAllocation
+            - tokenVesting.getVestingSchedule(beneficiary1).amountVestedAtRevocation;
+
+        uint256 ownerTokenBalanceBeforeReclaim = vestingToken.balanceOf(address(owner));
+
+        tokenVesting.reclaimUnvestedTokens(beneficiary1);
+
+        uint256 ownerTokenBalanceAfterReclaim = vestingToken.balanceOf(address(owner));
+
+        vm.stopPrank();
+
+        assertEq(
+            ownerTokenBalanceAfterReclaim,
+            ownerTokenBalanceBeforeReclaim + expectedReclaimableAmount,
+            "owner's token balance should increase by the expected reclaimable amount"
+        );
     }
 }
 
