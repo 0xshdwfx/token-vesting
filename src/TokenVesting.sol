@@ -254,15 +254,17 @@ contract TokenVesting is Ownable {
             revert TokenVesting__BeneficiaryDoesNotExist(beneficiary);
         }
 
-        uint256 vestedTokensClaimed = getVestedAmount(beneficiary) - userVestingSchedule.amountClaimed;
+        uint256 totalVested =
+            userVestingSchedule.revoked ? userVestingSchedule.amountVestedAtRevocation : getVestedAmount(beneficiary);
+
+        uint256 vestedTokensClaimed = totalVested - userVestingSchedule.amountClaimed;
 
         if (vestedTokensClaimed == 0) revert TokenVesting__ZeroTokensToClaim();
 
-        VESTING_TOKEN.safeTransfer(beneficiary, vestedTokensClaimed);
-
         userVestingSchedule.amountClaimed += vestedTokensClaimed;
-
         totalVestingAllocation -= vestedTokensClaimed;
+
+        VESTING_TOKEN.safeTransfer(beneficiary, vestedTokensClaimed);
 
         emit TokensClaimed(beneficiary, vestedTokensClaimed);
 
