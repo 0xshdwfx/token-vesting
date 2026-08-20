@@ -32,6 +32,7 @@ contract TokenVesting is Ownable {
         uint256 vestingDuration;
         uint256 amountClaimed;
         bool revoked;
+        bool unvestedTokensReclaimed;
         uint256 amountVestedAtRevocation;
     }
 
@@ -74,6 +75,7 @@ contract TokenVesting is Ownable {
     error TokenVesting__ScheduleAlreadyRevoked();
     error TokenVesting__BeneficiaryDoesNotExist(address beneficiary);
     error TokenVesting__ZeroTokensToClaim();
+    error TokenVesting__UnvestedTokensAlreadyReclaimed();
     error TokenVesting__ScheduleNotRevoked();
     error TokenVesting__NothingToReclaim();
     error TokenVesting__NoExcessTokensToWithdraw();
@@ -157,6 +159,7 @@ contract TokenVesting is Ownable {
             vestingDuration: vestingDuration,
             amountClaimed: 0,
             revoked: false,
+            unvestedTokensReclaimed: false,
             amountVestedAtRevocation: 0
         });
 
@@ -289,6 +292,12 @@ contract TokenVesting is Ownable {
         uint256 amountToReclaim = userVestingSchedule.totalAllocation - userVestingSchedule.amountVestedAtRevocation;
 
         if (amountToReclaim == 0) revert TokenVesting__NothingToReclaim();
+
+        if (userVestingSchedule.unvestedTokensReclaimed) {
+            revert TokenVesting__UnvestedTokensAlreadyReclaimed();
+        }
+
+        userVestingSchedule.unvestedTokensReclaimed = true;
 
         VESTING_TOKEN.safeTransfer(owner(), amountToReclaim);
 
