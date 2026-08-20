@@ -297,6 +297,14 @@ contract TokenVesting is Ownable {
         emit UnvestedTokensReclaimed(beneficiary, amountToReclaim);
     }
 
+    /**
+     * @notice  Allows the owner to withdraw tokens that exceed the total vesting allocation.
+     * @dev     Calculates excess as the contract's token balance minus totalVestingAllocation.
+     *          Only unallocated tokens (accidentally sent or no longer needed) can be withdrawn.
+     *          Beneficiary allocations are fully protected. Reverts if no excess tokens are available.
+     *          Emits ExcessTokensWithdrawn event for transparency.
+     * @custom:error TokenVesting__NoExcessTokensToWithdraw if contract balance equals or is less than totalVestingAllocation.
+     */
     function withdrawExcessTokens() external onlyOwner {
         uint256 excess = VESTING_TOKEN.balanceOf(address(this)) - totalVestingAllocation;
 
