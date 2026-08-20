@@ -103,6 +103,16 @@ contract TokenVestingTest is Test {
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, 10 days);
     }
 
+    function test_AddBeneficiary_Reverts_WhenContractBalanceIsLessThanNewTotalOutstandingAllocation() public {
+        vm.startPrank(owner);
+
+        vm.expectRevert(TokenVesting.TokenVesting__InsufficientFunding.selector);
+
+        tokenVesting.addBeneficiary(beneficiary1, 1_000_001e18, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        vm.stopPrank();
+    }
+
     function test_AddBeneficiary_StoresBeneficiary_WhenValid() public {
         vm.prank(owner);
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);

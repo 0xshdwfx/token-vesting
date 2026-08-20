@@ -71,6 +71,7 @@ contract TokenVesting is Ownable {
     error TokenVesting__InvalidStartTime();
     error TokenVesting__InvalidVestingDuration();
     error TokenVesting__CliffDurationIsGreaterThanVestingDuration();
+    error TokenVesting__InsufficientFunding();
     error TokenVesting__BeneficiaryAlreadyExists(address beneficiary);
     error TokenVesting__ScheduleAlreadyRevoked();
     error TokenVesting__BeneficiaryDoesNotExist(address beneficiary);
@@ -120,6 +121,7 @@ contract TokenVesting is Ownable {
      * @custom:error TokenVesting__InvalidStartTime if startTime is zero.
      * @custom:error TokenVesting__InvalidVestingDuration if vestingDuration is zero.
      * @custom:error TokenVesting__CliffDurationIsGreaterThanVestingDuration if cliff >= vesting duration.
+     * @custom:error TokenVesting__InsufficientFunding if the contract balance cannot cover all outstanding allocations.
      */
     function addBeneficiary(
         address beneficiary,
@@ -150,6 +152,13 @@ contract TokenVesting is Ownable {
         // validate cliff duration is not greater than or equal to vesting duration
         if (cliffDuration >= vestingDuration) {
             revert TokenVesting__CliffDurationIsGreaterThanVestingDuration();
+        }
+
+        // validate contract has enough tokens
+        uint256 newTotalVestingAllocation = totalOutstandingAllocation + totalAllocation;
+
+        if (VESTING_TOKEN.balanceOf(address(this)) < newTotalVestingAllocation) {
+            revert TokenVesting__InsufficientFunding();
         }
 
         // create VestingSchedule struct and store in mapping
