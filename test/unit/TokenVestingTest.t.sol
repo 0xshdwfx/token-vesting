@@ -125,21 +125,21 @@ contract TokenVestingTest is Test {
         assertEq(tokenVesting.getBeneficiariesLength(), 3, "Total length is 3");
     }
 
-    function test_AddBeneficiary_IncreasesTotalVestingAllocation_WhenBeneficiaryAdded() public {
+    function test_AddBeneficiary_IncreasesTotalOutstandingAllocation_WhenBeneficiaryAdded() public {
         vm.startPrank(owner);
 
-        uint256 totalVestingAllocationBeforeBeneficiaryAdded = tokenVesting.getTotalVestingAllocation();
+        uint256 totalOutstandingAllocationBeforeBeneficiaryAdded = tokenVesting.getTotalOutstandingAllocation();
 
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
 
-        uint256 totalVestingAllocationAfterBeneficiaryAdded = tokenVesting.getTotalVestingAllocation();
+        uint256 totalOutstandingAllocationAfterBeneficiaryAdded = tokenVesting.getTotalOutstandingAllocation();
 
         vm.stopPrank();
 
         assertEq(
-            totalVestingAllocationAfterBeneficiaryAdded,
-            totalVestingAllocationBeforeBeneficiaryAdded + ALLOCATION,
-            "totalVestingAllocation should increase by exactly ALLOCATION"
+            totalOutstandingAllocationAfterBeneficiaryAdded,
+            totalOutstandingAllocationBeforeBeneficiaryAdded + ALLOCATION,
+            "totalOutstandingAllocation should increase by exactly ALLOCATION"
         );
     }
 

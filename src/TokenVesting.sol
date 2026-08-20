@@ -43,7 +43,7 @@ contract TokenVesting is Ownable {
     IERC20 public immutable VESTING_TOKEN;
     mapping(address beneficiary => VestingSchedule) public vestingSchedules;
     address[] public beneficiaries;
-    uint256 public totalVestingAllocation;
+    uint256 public totalOutstandingAllocation;
 
     /////////////////
     /// Events //////
@@ -168,7 +168,7 @@ contract TokenVesting is Ownable {
         beneficiaries.push(beneficiary);
 
         // track total allocation across all beneficiaries
-        totalVestingAllocation += totalAllocation;
+        totalOutstandingAllocation += totalAllocation;
 
         // emit event to log beneficiary addition
         emit BeneficiaryAdded(beneficiary, totalAllocation, startTime, cliffDuration, vestingDuration);
@@ -263,7 +263,7 @@ contract TokenVesting is Ownable {
         if (vestedTokensClaimed == 0) revert TokenVesting__ZeroTokensToClaim();
 
         userVestingSchedule.amountClaimed += vestedTokensClaimed;
-        totalVestingAllocation -= vestedTokensClaimed;
+        totalOutstandingAllocation -= vestedTokensClaimed;
 
         VESTING_TOKEN.safeTransfer(beneficiary, vestedTokensClaimed);
 
@@ -301,32 +301,31 @@ contract TokenVesting is Ownable {
         }
 
         userVestingSchedule.unvestedTokensReclaimed = true;
+        totalOutstandingAllocation -= amountToReclaim;
 
         VESTING_TOKEN.safeTransfer(owner(), amountToReclaim);
-
-        totalVestingAllocation -= amountToReclaim;
 
         emit UnvestedTokensReclaimed(beneficiary, amountToReclaim);
     }
 
     /**
      * @notice  Allows the owner to withdraw tokens that exceed the total vesting allocation.
-     * @dev     Calculates excess as contract balance minus totalVestingAllocation. Validates that
+     * @dev     Calculates excess as contract balance minus totalOutstandingAllocation. Validates that
      *          contract holds at least the allocated amount (invariant check). Only unallocated tokens
      *          (accidentally sent or no longer needed) can be withdrawn. Beneficiary allocations are
      *          fully protected. Reverts if contract is underfunded or no excess tokens are available.
      *          Emits ExcessTokensWithdrawn event for transparency.
-     * @custom:error TokenVesting__ContractUnderfunded if contract balance is less than totalVestingAllocation.
-     * @custom:error TokenVesting__NoExcessTokensToWithdraw if contract balance equals totalVestingAllocation.
+     * @custom:error TokenVesting__ContractUnderfunded if contract balance is less than totalOutstandingAllocation.
+     * @custom:error TokenVesting__NoExcessTokensToWithdraw if contract balance equals totalOutstandingAllocation.
      */
     function withdrawExcessTokens() external onlyOwner {
         uint256 contractBalance = VESTING_TOKEN.balanceOf(address(this));
 
-        if (contractBalance < totalVestingAllocation) {
+        if (contractBalance < totalOutstandingAllocation) {
             revert TokenVesting__ContractUnderfunded();
         }
 
-        uint256 excess = contractBalance - totalVestingAllocation;
+        uint256 excess = contractBalance - totalOutstandingAllocation;
 
         if (excess == 0) revert TokenVesting__NoExcessTokensToWithdraw();
 
@@ -343,8 +342,8 @@ contract TokenVesting is Ownable {
         return beneficiaries.length;
     }
 
-    function getTotalVestingAllocation() external view returns (uint256) {
-        return totalVestingAllocation;
+    function getTotalOutstandingAllocation() external view returns (uint256) {
+        return totalOutstandingAllocation;
     }
 
     function getVestingSchedule(address beneficiary) external view returns (VestingSchedule memory) {
