@@ -58,6 +58,7 @@ contract TokenVesting is Ownable {
     event BeneficiaryVestingScheduleRevoked(address indexed beneficiary, uint256 amountVestedAtRevocation);
     event TokensClaimed(address indexed beneficiary, uint256 tokenAmountClaimed);
     event UnvestedTokensReclaimed(address beneficiary, uint256 amountReclaimed);
+    event ExcessTokensWithdrawn(uint256 excessWithdrawn);
 
     /////////////////
     /// Errors //////
@@ -75,6 +76,7 @@ contract TokenVesting is Ownable {
     error TokenVesting__ZeroTokensToClaim();
     error TokenVesting__ScheduleNotRevoked();
     error TokenVesting__NothingToReclaim();
+    error TokenVesting__NoExcessTokensToWithdraw();
 
     //////////////////////
     //// Constructor ////
@@ -289,6 +291,16 @@ contract TokenVesting is Ownable {
         VESTING_TOKEN.safeTransfer(owner(), amountToReclaim);
 
         emit UnvestedTokensReclaimed(beneficiary, amountToReclaim);
+    }
+
+    function withdrawExcessTokens() external onlyOwner {
+        uint256 excess = VESTING_TOKEN.balanceOf(address(this)) - totalVestingAllocation;
+
+        if (excess == 0) revert TokenVesting__NoExcessTokensToWithdraw();
+
+        VESTING_TOKEN.safeTransfer(owner(), excess);
+
+        emit ExcessTokensWithdrawn(excess);
     }
 
     ////////////////////////////
