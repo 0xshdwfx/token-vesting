@@ -259,6 +259,8 @@ contract TokenVesting is Ownable {
 
         userVestingSchedule.amountClaimed += vestedTokensClaimed;
 
+        totalVestingAllocation -= vestedTokensClaimed;
+
         emit TokensClaimed(beneficiary, vestedTokensClaimed);
 
         return vestedTokensClaimed;
@@ -289,6 +291,8 @@ contract TokenVesting is Ownable {
         if (amountToReclaim == 0) revert TokenVesting__NothingToReclaim();
 
         VESTING_TOKEN.safeTransfer(owner(), amountToReclaim);
+
+        totalVestingAllocation -= amountToReclaim;
 
         emit UnvestedTokensReclaimed(beneficiary, amountToReclaim);
     }
