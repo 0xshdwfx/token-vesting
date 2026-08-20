@@ -78,6 +78,7 @@ contract TokenVesting is Ownable {
     error TokenVesting__UnvestedTokensAlreadyReclaimed();
     error TokenVesting__ScheduleNotRevoked();
     error TokenVesting__NothingToReclaim();
+    error TokenVesting__ContractUnderfunded();
     error TokenVesting__NoExcessTokensToWithdraw();
 
     //////////////////////
@@ -310,14 +311,22 @@ contract TokenVesting is Ownable {
 
     /**
      * @notice  Allows the owner to withdraw tokens that exceed the total vesting allocation.
-     * @dev     Calculates excess as the contract's token balance minus totalVestingAllocation.
-     *          Only unallocated tokens (accidentally sent or no longer needed) can be withdrawn.
-     *          Beneficiary allocations are fully protected. Reverts if no excess tokens are available.
+     * @dev     Calculates excess as contract balance minus totalVestingAllocation. Validates that
+     *          contract holds at least the allocated amount (invariant check). Only unallocated tokens
+     *          (accidentally sent or no longer needed) can be withdrawn. Beneficiary allocations are
+     *          fully protected. Reverts if contract is underfunded or no excess tokens are available.
      *          Emits ExcessTokensWithdrawn event for transparency.
-     * @custom:error TokenVesting__NoExcessTokensToWithdraw if contract balance equals or is less than totalVestingAllocation.
+     * @custom:error TokenVesting__ContractUnderfunded if contract balance is less than totalVestingAllocation.
+     * @custom:error TokenVesting__NoExcessTokensToWithdraw if contract balance equals totalVestingAllocation.
      */
     function withdrawExcessTokens() external onlyOwner {
-        uint256 excess = VESTING_TOKEN.balanceOf(address(this)) - totalVestingAllocation;
+        uint256 contractBalance = VESTING_TOKEN.balanceOf(address(this));
+
+        if (contractBalance < totalVestingAllocation) {
+            revert TokenVesting__ContractUnderfunded();
+        }
+
+        uint256 excess = contractBalance - totalVestingAllocation;
 
         if (excess == 0) revert TokenVesting__NoExcessTokensToWithdraw();
 
