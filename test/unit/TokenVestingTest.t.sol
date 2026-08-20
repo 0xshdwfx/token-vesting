@@ -271,6 +271,39 @@ contract TokenVestingTest is Test {
         tokenVesting.claimVestedTokens(beneficiary1);
     }
 
+    function test_ClaimVestedTokens_AllowsRevokedBeneficiary_ToClaimVestedAtRevocationAmount() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + ((VESTING_DURATION - CLIFF_DURATION) / 2);
+        vm.warp(midVestingTime);
+
+        tokenVesting.revokeSchedule(beneficiary1);
+
+        uint256 vestingTokenBalanceBeforeTransfer = vestingToken.balanceOf(address(tokenVesting));
+        uint256 revokedBeneficiaryBalanceBeforeTransfer = vestingToken.balanceOf(address(beneficiary1));
+
+        tokenVesting.claimVestedTokens(beneficiary1);
+
+        uint256 vestingTokenBalanceAfterTransfer = vestingToken.balanceOf(address(tokenVesting));
+        uint256 revokedBeneficiaryBalanceAfterTransfer = vestingToken.balanceOf(address(beneficiary1));
+
+        uint256 amountClaimed = (ALLOCATION * (midVestingTime - START_TIME)) / VESTING_DURATION;
+
+        vm.stopPrank();
+
+        assertEq(
+            vestingTokenBalanceAfterTransfer,
+            vestingTokenBalanceBeforeTransfer - amountClaimed,
+            "contract vestingToken balance should decrease by amount claimed"
+        );
+        assertEq(
+            revokedBeneficiaryBalanceAfterTransfer,
+            revokedBeneficiaryBalanceBeforeTransfer + amountClaimed,
+            "revoked beneficiary balance should increase by amount claimed"
+        );
+    }
+
     function test_ClaimVestedTokens_ReturnsCorrectAmount_WhenMidVesting() public {
         vm.prank(owner);
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
