@@ -548,15 +548,58 @@ contract TokenVestingTest is Test {
         vm.prank(owner);
         tokenVesting.addBeneficiary(beneficiary1, exactAllocation, START_TIME, CLIFF_DURATION, VESTING_DURATION);
 
-        assertEq(vestingToken.balanceOf(address(tokenVesting)), exactAllocation);
+        assertEq(
+            vestingToken.balanceOf(address(tokenVesting)),
+            exactAllocation,
+            "tokenVesting balance should equal the exact allocation"
+        );
 
-        assertEq(tokenVesting.totalOutstandingAllocation(), exactAllocation);
+        assertEq(
+            tokenVesting.totalOutstandingAllocation(),
+            exactAllocation,
+            "total outstanding allocation should equal the exact allocation"
+        );
 
         vm.prank(owner);
 
         vm.expectRevert(TokenVesting.TokenVesting__NoExcessTokensToWithdraw.selector);
 
         tokenVesting.withdrawExcessTokens();
+    }
+
+    function test_WithdrawExcessTokens_TransfersExcessToOwner_WhenExcessExists() public {
+        vm.prank(owner);
+
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 contractBalanceBeforeWithdrawal = vestingToken.balanceOf(address(tokenVesting));
+
+        uint256 outstandingAllocation = tokenVesting.totalOutstandingAllocation();
+
+        uint256 excess = contractBalanceBeforeWithdrawal - outstandingAllocation;
+
+        assertGt(excess, 0, "excess should be greater than zero");
+
+        uint256 ownerBalanceBeforeWithdrawal = vestingToken.balanceOf(owner);
+
+        vm.prank(owner);
+        tokenVesting.withdrawExcessTokens();
+
+        uint256 ownerBalanceAfterWithdrawal = vestingToken.balanceOf(owner);
+
+        uint256 contractBalanceAfterWithdrawal = vestingToken.balanceOf(address(tokenVesting));
+
+        assertEq(
+            ownerBalanceAfterWithdrawal,
+            ownerBalanceBeforeWithdrawal + excess,
+            "owner balance should increase by excess amount"
+        );
+
+        assertEq(
+            contractBalanceAfterWithdrawal,
+            contractBalanceBeforeWithdrawal - excess,
+            "contract balance should decrease by excess amount"
+        );
     }
 }
 
