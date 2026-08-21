@@ -138,11 +138,11 @@ contract TokenVestingTest is Test {
     function test_AddBeneficiary_IncreasesTotalOutstandingAllocation_WhenBeneficiaryAdded() public {
         vm.startPrank(owner);
 
-        uint256 totalOutstandingAllocationBeforeBeneficiaryAdded = tokenVesting.getTotalOutstandingAllocation();
+        uint256 totalOutstandingAllocationBeforeBeneficiaryAdded = tokenVesting.totalOutstandingAllocation();
 
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
 
-        uint256 totalOutstandingAllocationAfterBeneficiaryAdded = tokenVesting.getTotalOutstandingAllocation();
+        uint256 totalOutstandingAllocationAfterBeneficiaryAdded = tokenVesting.totalOutstandingAllocation();
 
         vm.stopPrank();
 
@@ -522,5 +522,9 @@ contract TokenVestingTest is Test {
 
         vm.stopPrank();
     }
+
+    /////////////////////////////
+    /// withdrawExcessTokens ///
+    ///////////////////////////
 }
 

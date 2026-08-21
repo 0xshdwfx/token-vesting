@@ -351,10 +351,6 @@ contract TokenVesting is Ownable {
         return beneficiaries.length;
     }
 
-    function getTotalOutstandingAllocation() external view returns (uint256) {
-        return totalOutstandingAllocation;
-    }
-
     function getVestingSchedule(address beneficiary) external view returns (VestingSchedule memory) {
         return vestingSchedules[beneficiary];
     }
