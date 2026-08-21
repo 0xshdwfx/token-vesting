@@ -4,6 +4,7 @@ pragma solidity ^0.8.26;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 
 /**
  * @author  0xshdwfx
@@ -18,7 +19,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
  *          revoke schedules to recover unvested tokens. All vesting calculations are
  *          linear after the cliff period.
  */
-contract TokenVesting is Ownable {
+contract TokenVesting is Ownable, Pausable {
     using SafeERC20 for IERC20;
 
     ///////////////
@@ -129,7 +130,7 @@ contract TokenVesting is Ownable {
         uint256 startTime,
         uint256 cliffDuration,
         uint256 vestingDuration
-    ) external onlyOwner {
+    ) external whenNotPaused onlyOwner {
         VestingSchedule storage userVestingSchedule = vestingSchedules[beneficiary];
 
         // validate beneficiary address is not zero
@@ -230,7 +231,7 @@ contract TokenVesting is Ownable {
      * @custom:error TokenVesting__BeneficiaryDoesNotExist if beneficiary has no vesting schedule.
      * @custom:error TokenVesting__ScheduleAlreadyRevoked if the schedule is already revoked.
      */
-    function revokeSchedule(address beneficiary) external onlyOwner {
+    function revokeSchedule(address beneficiary) external whenNotPaused onlyOwner {
         VestingSchedule storage userVestingSchedule = vestingSchedules[beneficiary];
 
         if (userVestingSchedule.revoked == true) revert TokenVesting__ScheduleAlreadyRevoked();
@@ -257,7 +258,7 @@ contract TokenVesting is Ownable {
      * @custom:error TokenVesting__BeneficiaryDoesNotExist if beneficiary has no vesting schedule.
      * @custom:error TokenVesting__ZeroTokensToClaim if no tokens are currently claimable.
      */
-    function claimVestedTokens(address beneficiary) external returns (uint256) {
+    function claimVestedTokens(address beneficiary) external whenNotPaused returns (uint256) {
         VestingSchedule storage userVestingSchedule = vestingSchedules[beneficiary];
 
         if (userVestingSchedule.totalAllocation == 0) {
@@ -292,7 +293,7 @@ contract TokenVesting is Ownable {
      * @custom:error TokenVesting__ScheduleNotRevoked if the beneficiary's schedule is not revoked.
      * @custom:error TokenVesting__NothingToReclaim if all tokens were vested before revocation.
      */
-    function reclaimUnvestedTokens(address beneficiary) external onlyOwner {
+    function reclaimUnvestedTokens(address beneficiary) external whenNotPaused onlyOwner {
         VestingSchedule storage userVestingSchedule = vestingSchedules[beneficiary];
 
         if (userVestingSchedule.totalAllocation == 0) {
@@ -327,7 +328,7 @@ contract TokenVesting is Ownable {
      * @custom:error TokenVesting__ContractUnderfunded if contract balance is less than totalOutstandingAllocation.
      * @custom:error TokenVesting__NoExcessTokensToWithdraw if contract balance equals totalOutstandingAllocation.
      */
-    function withdrawExcessTokens() external onlyOwner {
+    function withdrawExcessTokens() external whenNotPaused onlyOwner {
         uint256 contractBalance = VESTING_TOKEN.balanceOf(address(this));
 
         if (contractBalance < totalOutstandingAllocation) {
@@ -341,6 +342,30 @@ contract TokenVesting is Ownable {
         VESTING_TOKEN.safeTransfer(owner(), excess);
 
         emit ExcessTokensWithdrawn(excess);
+    }
+
+    /**
+     * @notice Pauses contract operations.
+     * @dev Only the contract owner can call this function. While paused, functions
+     *      protected by the `whenNotPaused` modifier cannot be executed. This
+     *      provides an emergency mechanism to temporarily stop sensitive operations.
+     * @custom:error OwnableUnauthorizedAccount if the caller is not the owner.
+     * @custom:error EnforcedPause if the contract is already paused.
+     */
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /**
+     * @notice Resumes contract operations.
+     * @dev Only the contract owner can call this function. Functions protected by
+     *      the `whenNotPaused` modifier become executable again after the contract
+     *      is unpaused.
+     * @custom:error OwnableUnauthorizedAccount if the caller is not the owner.
+     * @custom:error ExpectedPause if the contract is not currently paused.
+     */
+    function unpause() external onlyOwner {
+        _unpause();
     }
 
     ////////////////////////////
