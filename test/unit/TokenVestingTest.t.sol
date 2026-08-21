@@ -31,6 +31,7 @@ contract TokenVestingTest is Test {
     event BeneficiaryVestingScheduleRevoked(address indexed beneficiary, uint256 amountVestedAtRevocation);
     event TokensClaimed(address indexed beneficiary, uint256 tokenAmountClaimed);
     event UnvestedTokensReclaimed(address beneficiary, uint256 amountReclaimed);
+    event ExcessTokensWithdrawn(uint256 excessWithdrawn);
 
     // errors
     error TokenVestingTest__TransferFailed();
@@ -569,7 +570,6 @@ contract TokenVestingTest is Test {
 
     function test_WithdrawExcessTokens_TransfersExcessToOwner_WhenExcessExists() public {
         vm.prank(owner);
-
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
 
         uint256 contractBalanceBeforeWithdrawal = vestingToken.balanceOf(address(tokenVesting));
@@ -600,6 +600,23 @@ contract TokenVestingTest is Test {
             contractBalanceBeforeWithdrawal - excess,
             "contract balance should decrease by excess amount"
         );
+    }
+
+    function test_WithdrawExcessTokens_EmitsExcessTokensWithdrawn_WhenExcessWithdrawn() public {
+        vm.prank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 contractBalanceBeforeWithdrawal = vestingToken.balanceOf(address(tokenVesting));
+        uint256 outstandingAllocation = tokenVesting.totalOutstandingAllocation();
+
+        uint256 excess = contractBalanceBeforeWithdrawal - outstandingAllocation;
+
+        vm.prank(owner);
+
+        vm.expectEmit(false, false, false, true);
+        emit ExcessTokensWithdrawn(excess);
+
+        tokenVesting.withdrawExcessTokens();
     }
 }
 
