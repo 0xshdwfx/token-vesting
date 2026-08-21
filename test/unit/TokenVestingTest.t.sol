@@ -526,5 +526,20 @@ contract TokenVestingTest is Test {
     /////////////////////////////
     /// withdrawExcessTokens ///
     ///////////////////////////
+
+    function test_WithdrawExcessTokens_Reverts_WhenContractBalanceIsLessThanTotalOutstandingAllocation() public {
+        vm.prank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 fundedAmount = 999e18;
+
+        deal(address(vestingToken), address(tokenVesting), fundedAmount);
+
+        vm.prank(owner);
+
+        vm.expectRevert(TokenVesting.TokenVesting__ContractUnderfunded.selector);
+
+        tokenVesting.withdrawExcessTokens();
+    }
 }
 
