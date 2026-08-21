@@ -541,5 +541,22 @@ contract TokenVestingTest is Test {
 
         tokenVesting.withdrawExcessTokens();
     }
+
+    function test_WithdrawExcessTokens_Reverts_WhenThereAreNoExcessTokensToWithdraw() public {
+        uint256 exactAllocation = 1_000_000e18;
+
+        vm.prank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, exactAllocation, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        assertEq(vestingToken.balanceOf(address(tokenVesting)), exactAllocation);
+
+        assertEq(tokenVesting.totalOutstandingAllocation(), exactAllocation);
+
+        vm.prank(owner);
+
+        vm.expectRevert(TokenVesting.TokenVesting__NoExcessTokensToWithdraw.selector);
+
+        tokenVesting.withdrawExcessTokens();
+    }
 }
 
