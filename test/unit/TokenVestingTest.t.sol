@@ -167,7 +167,7 @@ contract TokenVestingTest is Test {
     /// getVestedAmount ///
     //////////////////////
 
-    function test_GetVestedAmount_ReturnsZero_WhenBeneficiaryDoesNotExist() public view {
+    function test_GetVestedAmount_ReturnsZero_WhenBeneficiaryDoesNotExist() public {
         uint256 vestedAmount = tokenVesting.getVestedAmount(beneficiary1);
         assertEq(vestedAmount, 0, "getVestedAmount should return 0 when does not exist");
     }
@@ -618,5 +618,16 @@ contract TokenVestingTest is Test {
 
         tokenVesting.withdrawExcessTokens();
     }
-}
 
+    /////////////
+    /// pause ///
+    ////////////
+
+    function test_Pause_SetsPausedState_WhenCalledByOwner() public {
+        vm.prank(owner);
+
+        tokenVesting.pause();
+
+        assertTrue(tokenVesting.paused(), "contract should be paused");
+    }
+}
