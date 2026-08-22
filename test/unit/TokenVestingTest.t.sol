@@ -619,15 +619,29 @@ contract TokenVestingTest is Test {
         tokenVesting.withdrawExcessTokens();
     }
 
-    /////////////
+    //////////////
     /// pause ///
-    ////////////
+    /////////////
 
-    function test_Pause_SetsPausedState_WhenCalledByOwner() public {
+    function test_Pause_SetsPausedStateToTrue_WhenCalledByOwner() public {
         vm.prank(owner);
 
         tokenVesting.pause();
 
         assertTrue(tokenVesting.paused(), "contract should be paused");
+    }
+
+    ////////////////
+    /// unPause ///
+    ///////////////
+
+    function test_Unpause_SetsPausedStateToFalse_WhenCalledByOwner() public {
+        vm.prank(owner);
+        tokenVesting.pause();
+
+        vm.prank(owner);
+        tokenVesting.unpause();
+
+        assertFalse(tokenVesting.paused(), "contract should be unpaused");
     }
 }
