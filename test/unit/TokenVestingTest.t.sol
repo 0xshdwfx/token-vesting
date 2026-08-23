@@ -652,4 +652,12 @@ contract TokenVestingTest is Test {
 
         tokenVesting.pause();
     }
+
+    function test_Unpause_Reverts_WhenContractIsNotPaused() public {
+        vm.prank(owner);
+
+        vm.expectRevert(Pausable.ExpectedPause.selector);
+
+        tokenVesting.unpause();
+    }
 }
