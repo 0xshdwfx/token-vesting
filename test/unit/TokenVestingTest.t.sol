@@ -670,4 +670,15 @@ contract TokenVestingTest is Test {
 
         tokenVesting.pause();
     }
+
+    function test_Unpause_Reverts_WhenCalledByNonOwner() public {
+        vm.prank(owner);
+        tokenVesting.pause();
+
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, nonOwner));
+
+        vm.prank(nonOwner);
+
+        tokenVesting.unpause();
+    }
 }
