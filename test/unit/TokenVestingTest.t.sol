@@ -6,6 +6,7 @@ import {console} from "forge-std/console.sol";
 import {TokenVesting} from "../../src/TokenVesting.sol";
 import {VestingToken} from "../../src/VestingToken.sol";
 import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TokenVestingTest is Test {
     TokenVesting public tokenVesting;
@@ -15,6 +16,7 @@ contract TokenVestingTest is Test {
     address public beneficiary1 = makeAddr("beneficiary1");
     address public beneficiary2 = makeAddr("beneficiary2");
     address public beneficiary3 = makeAddr("beneficiary3");
+    address public nonOwner = makeAddr("nonOwner");
 
     uint256 public constant ALLOCATION = 1000e18;
     uint256 public constant START_TIME = 1_000_000;
@@ -659,5 +661,13 @@ contract TokenVestingTest is Test {
         vm.expectRevert(Pausable.ExpectedPause.selector);
 
         tokenVesting.unpause();
+    }
+
+    function test_Pause_Reverts_WhenCalledByNonOwner() public {
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, nonOwner));
+
+        vm.prank(nonOwner);
+
+        tokenVesting.pause();
     }
 }
