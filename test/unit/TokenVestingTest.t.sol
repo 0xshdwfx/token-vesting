@@ -166,6 +166,17 @@ contract TokenVestingTest is Test {
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
     }
 
+    function test_AddBeneficiary_Reverts_WhenPaused() public {
+        vm.prank(owner);
+        tokenVesting.pause();
+
+        vm.prank(owner);
+
+        vm.expectRevert(Pausable.EnforcedPause.selector);
+
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+    }
+
     ////////////////////////
     /// getVestedAmount ///
     //////////////////////
