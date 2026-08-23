@@ -5,6 +5,7 @@ import {Test} from "forge-std/Test.sol";
 import {console} from "forge-std/console.sol";
 import {TokenVesting} from "../../src/TokenVesting.sol";
 import {VestingToken} from "../../src/VestingToken.sol";
+import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 
 contract TokenVestingTest is Test {
     TokenVesting public tokenVesting;
@@ -619,9 +620,9 @@ contract TokenVestingTest is Test {
         tokenVesting.withdrawExcessTokens();
     }
 
-    //////////////
-    /// pause ///
-    /////////////
+    //////////////////////
+    /// pause/unpause ///
+    /////////////////////
 
     function test_Pause_SetsPausedStateToTrue_WhenCalledByOwner() public {
         vm.prank(owner);
@@ -631,10 +632,6 @@ contract TokenVestingTest is Test {
         assertTrue(tokenVesting.paused(), "contract should be paused");
     }
 
-    ////////////////
-    /// unPause ///
-    ///////////////
-
     function test_Unpause_SetsPausedStateToFalse_WhenCalledByOwner() public {
         vm.prank(owner);
         tokenVesting.pause();
@@ -643,5 +640,16 @@ contract TokenVestingTest is Test {
         tokenVesting.unpause();
 
         assertFalse(tokenVesting.paused(), "contract should be unpaused");
+    }
+
+    function test_Pause_Reverts_WhenAlreadyPaused() public {
+        vm.prank(owner);
+        tokenVesting.pause();
+
+        vm.prank(owner);
+
+        vm.expectRevert(Pausable.EnforcedPause.selector);
+
+        tokenVesting.pause();
     }
 }
