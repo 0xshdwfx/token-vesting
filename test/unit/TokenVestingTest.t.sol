@@ -177,6 +177,23 @@ contract TokenVestingTest is Test {
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
     }
 
+    function test_AddBeneficiary_Works_WhenUnpaused() public {
+        vm.startPrank(owner);
+        tokenVesting.pause();
+
+        tokenVesting.unpause();
+
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        vm.stopPrank();
+
+        assertEq(
+            tokenVesting.getVestingSchedule(beneficiary1).totalAllocation,
+            ALLOCATION,
+            "beneficiary schedule should be created after unpausing"
+        );
+    }
+
     ////////////////////////
     /// getVestedAmount ///
     //////////////////////
