@@ -301,6 +301,19 @@ contract TokenVestingTest is Test {
         vm.stopPrank();
     }
 
+    function test_RevokeSchedule_Reverts_WhenPaused() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        tokenVesting.pause();
+
+        vm.expectRevert(Pausable.EnforcedPause.selector);
+
+        tokenVesting.revokeSchedule(beneficiary1);
+
+        vm.stopPrank();
+    }
+
     //////////////////////////
     /// claimVestedTokens ///
     ////////////////////////

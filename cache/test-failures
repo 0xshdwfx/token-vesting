@@ -1,1 +1,1 @@
-test_WithdrawExcessTokens_Reverts_WhenContractBalanceIsLessThanTotalOutstandingAllocation
+test_GetVestedAmount_Reverts_WhenPaused

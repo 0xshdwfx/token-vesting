@@ -328,7 +328,7 @@ contract TokenVesting is Ownable, Pausable {
      * @custom:error TokenVesting__ContractUnderfunded if contract balance is less than totalOutstandingAllocation.
      * @custom:error TokenVesting__NoExcessTokensToWithdraw if contract balance equals totalOutstandingAllocation.
      */
-    function withdrawExcessTokens() external whenNotPaused onlyOwner {
+    function withdrawExcessTokens() external onlyOwner {
         uint256 contractBalance = VESTING_TOKEN.balanceOf(address(this));
 
         if (contractBalance < totalOutstandingAllocation) {
