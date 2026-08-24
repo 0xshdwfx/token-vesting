@@ -459,6 +459,22 @@ contract TokenVestingTest is Test {
         vm.stopPrank();
     }
 
+    function test_ClaimVestedTokens_Reverts_WhenPaused() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + ((VESTING_DURATION - CLIFF_DURATION) / 2);
+        vm.warp(midVestingTime);
+
+        tokenVesting.pause();
+
+        vm.expectRevert(Pausable.EnforcedPause.selector);
+
+        tokenVesting.claimVestedTokens(beneficiary1);
+
+        vm.stopPrank();
+    }
+
     //////////////////////////////
     /// reclaimUnvestedTokens ///
     ////////////////////////////
