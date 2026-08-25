@@ -247,16 +247,22 @@ contract TokenVesting is Ownable, Pausable {
     }
 
     /**
-     * @notice  Claims and transfers vested tokens to the beneficiary.
-     * @dev     Only callable by external parties. Calculates claimable amount as the difference
-     *          between total vested and already claimed tokens. Uses SafeERC20 for secure token
-     *          transfers that handle both standard and non-standard ERC20 implementations. Reverts
-     *          if beneficiary does not exist or has no claimable tokens. Emits TokensClaimed event
-     *          and updates amountClaimed state.
-     * @param   beneficiary Address of the beneficiary claiming their vested tokens.
-     * @return  The amount of tokens successfully transferred to the beneficiary.
-     * @custom:error TokenVesting__BeneficiaryDoesNotExist if beneficiary has no vesting schedule.
-     * @custom:error TokenVesting__ZeroTokensToClaim if no tokens are currently claimable.
+     * @notice Claims and transfers vested tokens to a beneficiary.
+     * @dev Anyone can call this function on behalf of a beneficiary. The claimed
+     *      tokens are always transferred directly to the beneficiary address and
+     *      cannot be redirected to the caller. Calculates the claimable amount as
+     *      the difference between the total vested amount and the amount already
+     *      claimed. Uses SafeERC20 for the token transfer and updates the
+     *      beneficiary's claimed amount and total outstanding allocation.
+     * @param beneficiary Address of the beneficiary whose vested tokens are being
+     *        claimed.
+     * @return vestedTokensClaimed The amount of vested tokens transferred to the
+     *         beneficiary.
+     * @custom:error TokenVesting__BeneficiaryDoesNotExist if the beneficiary has no
+     *         vesting schedule.
+     * @custom:error TokenVesting__ZeroTokensToClaim if no tokens are currently
+     *         claimable.
+     * @custom:error Pausable.EnforcedPause if the contract is paused.
      */
     function claimVestedTokens(address beneficiary) external whenNotPaused returns (uint256) {
         VestingSchedule storage userVestingSchedule = vestingSchedules[beneficiary];
