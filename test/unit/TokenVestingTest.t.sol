@@ -387,6 +387,30 @@ contract TokenVestingTest is Test {
         tokenVesting.claimVestedTokens(beneficiary1);
     }
 
+    function test_ClaimVestedTokens_UpdatesTotalOutstandingAllocation_WhenClaiming() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 totalOutstandingAllocationBeforeClaiming = tokenVesting.totalOutstandingAllocation();
+
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + ((VESTING_DURATION - CLIFF_DURATION) / 2);
+        vm.warp(midVestingTime);
+
+        tokenVesting.claimVestedTokens(beneficiary1);
+
+        uint256 totalOutstandingAllocationAfterClaiming = tokenVesting.totalOutstandingAllocation();
+
+        uint256 amountClaimed = (ALLOCATION * (midVestingTime - START_TIME)) / VESTING_DURATION;
+
+        vm.stopPrank();
+
+        assertEq(
+            totalOutstandingAllocationAfterClaiming,
+            totalOutstandingAllocationBeforeClaiming - amountClaimed,
+            "total outstanding allocation should decrease by amount claimed"
+        );
+    }
+
     function test_ClaimVestedTokens_TransfersTokensToBeneficiary_WhenClaimingMidVesting() public {
         vm.startPrank(owner);
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
