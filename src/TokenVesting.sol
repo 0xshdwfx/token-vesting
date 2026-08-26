@@ -351,6 +351,17 @@ contract TokenVesting is Ownable, Pausable {
     }
 
     /**
+     * @notice Checks whether a beneficiary has a vesting schedule.
+     * @param beneficiary Address of the beneficiary to check.
+     * @return True if the beneficiary has a vesting schedule, otherwise false.
+     */
+    function hasVestingSchedule(address beneficiary) external view returns (bool) {
+        if (beneficiary == address(0)) return false;
+
+        return vestingSchedules[beneficiary].totalAllocation != 0;
+    }
+
+    /**
      * @notice Pauses contract operations.
      * @dev Only the contract owner can call this function. While paused, functions
      *      protected by the `whenNotPaused` modifier cannot be executed. This
