@@ -736,6 +736,10 @@ contract TokenVestingTest is Test {
         assertFalse(tokenVesting.hasVestingSchedule(beneficiary1), "function should return false");
     }
 
+    function test_HasVestingSchedule_ReturnsFalse_WhenBeneficiaryIsZeroAddress() public {
+        assertFalse(tokenVesting.hasVestingSchedule(address(0)));
+    }
+
     //////////////////////
     /// pause/unpause ///
     /////////////////////
