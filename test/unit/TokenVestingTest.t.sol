@@ -732,6 +732,10 @@ contract TokenVestingTest is Test {
         assertTrue(tokenVesting.hasVestingSchedule(beneficiary1), "function should return true");
     }
 
+    function test_HasVestingSchedule_ReturnsFalse_WhenBeneficiaryDoesNotExist() public {
+        assertFalse(tokenVesting.hasVestingSchedule(beneficiary1), "function should return false");
+    }
+
     //////////////////////
     /// pause/unpause ///
     /////////////////////
