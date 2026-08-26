@@ -353,7 +353,7 @@ contract TokenVesting is Ownable, Pausable {
     /**
      * @notice Checks whether a beneficiary has a vesting schedule.
      * @param beneficiary Address of the beneficiary to check.
-     * @return True if the beneficiary has a vesting schedule, otherwise false.
+     * @return true if the beneficiary has a vesting schedule, otherwise false.
      */
     function hasVestingSchedule(address beneficiary) external view returns (bool) {
         if (beneficiary == address(0)) return false;

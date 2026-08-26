@@ -721,6 +721,17 @@ contract TokenVestingTest is Test {
         tokenVesting.withdrawExcessTokens();
     }
 
+    ///////////////////////////
+    /// hasVestingSchedule ///
+    /////////////////////////
+
+    function test_HasVestingSchedule_ReturnsTrue_WhenBeneficiaryExists() public {
+        vm.prank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        assertTrue(tokenVesting.hasVestingSchedule(beneficiary1), "function should return true");
+    }
+
     //////////////////////
     /// pause/unpause ///
     /////////////////////
