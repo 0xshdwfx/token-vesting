@@ -754,6 +754,17 @@ contract TokenVestingTest is Test {
         assertEq(claimableAmount, 0, "getClaimableAmount should return 0 when beneficiary does not exist");
     }
 
+    function test_GetClaimableAmount_ReturnsZero_BeforeCliffEnds() public {
+        vm.prank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 cliffEnd = START_TIME + CLIFF_DURATION;
+        vm.warp(cliffEnd - 1);
+
+        uint256 claimableAmount = tokenVesting.getClaimableAmount(beneficiary1);
+        assertEq(claimableAmount, 0, "getClaimableAmount should return 0 when cliff has not expired");
+    }
+
     //////////////////////
     /// pause/unpause ///
     /////////////////////
