@@ -782,6 +782,33 @@ contract TokenVestingTest is Test {
         );
     }
 
+    function test_GetClaimableAmount_ReturnsOnlyUnclaimedAmount_AfterPartialClaim() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + ((VESTING_DURATION - CLIFF_DURATION) / 2);
+        vm.warp(midVestingTime);
+
+        uint256 firstClaimAmount = tokenVesting.getClaimableAmount(beneficiary1);
+
+        tokenVesting.claimVestedTokens(beneficiary1);
+
+        uint256 secondClaimTime = midVestingTime + 10 days;
+        vm.warp(secondClaimTime);
+
+        uint256 totalVestedAtSecondClaimTime = (ALLOCATION * (secondClaimTime - START_TIME)) / VESTING_DURATION;
+
+        uint256 expectedClaimableAmount = totalVestedAtSecondClaimTime - firstClaimAmount;
+
+        uint256 actualClaimableAmount = tokenVesting.getClaimableAmount(beneficiary1);
+
+        vm.stopPrank();
+
+        assertEq(
+            actualClaimableAmount, expectedClaimableAmount, "claimable amount should exclude previously claimed tokens"
+        );
+    }
+
     //////////////////////
     /// pause/unpause ///
     /////////////////////
