@@ -831,6 +831,21 @@ contract TokenVestingTest is Test {
         );
     }
 
+    function test_GetClaimableAmount_ReturnsZero_AfterAllVestedTokensClaimed() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        vm.warp(START_TIME + VESTING_DURATION + 10 days);
+
+        tokenVesting.claimVestedTokens(beneficiary1);
+
+        uint256 claimableAmount = tokenVesting.getClaimableAmount(beneficiary1);
+
+        vm.stopPrank();
+
+        assertEq(claimableAmount, 0, "claimable amount should be 0 after all vested tokens have been claimed");
+    }
+
     //////////////////////
     /// pause/unpause ///
     /////////////////////
