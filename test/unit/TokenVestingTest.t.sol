@@ -749,6 +749,11 @@ contract TokenVestingTest is Test {
         assertEq(claimableAmount, 0, "getClaimableAmount should return 0 for the zero address");
     }
 
+    function test_GetClaimableAmount_ReturnsZero_WhenBeneficiaryDoesNotExist() public {
+        uint256 claimableAmount = tokenVesting.getClaimableAmount(beneficiary1);
+        assertEq(claimableAmount, 0, "getClaimableAmount should return 0 when beneficiary does not exist");
+    }
+
     //////////////////////
     /// pause/unpause ///
     /////////////////////
