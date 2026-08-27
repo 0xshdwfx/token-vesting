@@ -846,6 +846,15 @@ contract TokenVestingTest is Test {
         assertEq(claimableAmount, 0, "claimable amount should be 0 after all vested tokens have been claimed");
     }
 
+    ///////////////////////////////
+    /// getRemainingAllocation ///
+    /////////////////////////////
+
+    function test_GetRemainingAllocation_ReturnsZero_WhenBeneficiaryIsZeroAddress() public {
+        uint256 remainingAllocation = tokenVesting.getRemainingAllocation(address(0));
+        assertEq(remainingAllocation, 0, "getRemainingAllocation should return 0 for the zero address");
+    }
+
     //////////////////////
     /// pause/unpause ///
     /////////////////////
