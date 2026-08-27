@@ -860,6 +860,17 @@ contract TokenVestingTest is Test {
         assertEq(remainingAllocation, 0, "getRemainingAllocation should return 0 when beneficiary does not exist");
     }
 
+    function test_GetRemainingAllocation_ReturnsFullAllocation_BeforeAnyClaim() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 allocationBeforeClaim = tokenVesting.getRemainingAllocation(beneficiary1);
+
+        vm.stopPrank();
+
+        assertEq(allocationBeforeClaim, ALLOCATION);
+    }
+
     //////////////////////
     /// pause/unpause ///
     /////////////////////

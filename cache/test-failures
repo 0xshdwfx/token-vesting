@@ -1,1 +1,1 @@
-test_GetClaimableAmount_ReturnsZero_AfterAllVestedTokensClaimed
+test_GetRemainingAllocation_ReturnsFullAllocation_BeforeAnyClaim

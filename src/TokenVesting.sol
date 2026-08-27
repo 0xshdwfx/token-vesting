@@ -248,14 +248,14 @@ contract TokenVesting is Ownable, Pausable {
 
     /**
      * @notice Claims and transfers vested tokens to a beneficiary.
-     * @dev Anyone can call this function on behalf of a beneficiary. The claimed
-     *      tokens are always transferred directly to the beneficiary address and
-     *      cannot be redirected to the caller. Calculates the claimable amount as
-     *      the difference between the total vested amount and the amount already
-     *      claimed. Uses SafeERC20 for the token transfer and updates the
-     *      beneficiary's claimed amount and total outstanding allocation.
-     * @param beneficiary Address of the beneficiary whose vested tokens are being
-     *        claimed.
+     * @dev    Anyone can call this function on behalf of a beneficiary. The claimed
+     *         tokens are always transferred directly to the beneficiary address and
+     *         cannot be redirected to the caller. Calculates the claimable amount as
+     *         the difference between the total vested amount and the amount already
+     *         claimed. Uses SafeERC20 for the token transfer and updates the
+     *         beneficiary's claimed amount and total outstanding allocation.
+     * @param  beneficiary Address of the beneficiary whose vested tokens are being
+     *         claimed.
      * @return vestedTokensClaimed The amount of vested tokens transferred to the
      *         beneficiary.
      * @custom:error TokenVesting__BeneficiaryDoesNotExist if the beneficiary has no
@@ -352,7 +352,7 @@ contract TokenVesting is Ownable, Pausable {
 
     /**
      * @notice Checks whether a beneficiary has a vesting schedule.
-     * @param beneficiary Address of the beneficiary to check.
+     * @param  beneficiary Address of the beneficiary to check.
      * @return true if the beneficiary has a vesting schedule, otherwise false.
      */
     function hasVestingSchedule(address beneficiary) external view returns (bool) {
@@ -363,9 +363,9 @@ contract TokenVesting is Ownable, Pausable {
 
     /**
      * @notice Pauses contract operations.
-     * @dev Only the contract owner can call this function. While paused, functions
-     *      protected by the `whenNotPaused` modifier cannot be executed. This
-     *      provides an emergency mechanism to temporarily stop sensitive operations.
+     * @dev    Only the contract owner can call this function. While paused, functions
+     *         protected by the `whenNotPaused` modifier cannot be executed. This
+     *         provides an emergency mechanism to temporarily stop sensitive operations.
      * @custom:error OwnableUnauthorizedAccount if the caller is not the owner.
      * @custom:error EnforcedPause if the contract is already paused.
      */
@@ -375,9 +375,9 @@ contract TokenVesting is Ownable, Pausable {
 
     /**
      * @notice Resumes contract operations.
-     * @dev Only the contract owner can call this function. Functions protected by
-     *      the `whenNotPaused` modifier become executable again after the contract
-     *      is unpaused.
+     * @dev    Only the contract owner can call this function. Functions protected by
+     *         the `whenNotPaused` modifier become executable again after the contract
+     *         is unpaused.
      * @custom:error OwnableUnauthorizedAccount if the caller is not the owner.
      * @custom:error ExpectedPause if the contract is not currently paused.
      */
@@ -400,8 +400,8 @@ contract TokenVesting is Ownable, Pausable {
 
     /**
      * @notice Returns the vesting schedule for a beneficiary.
-     * @dev Returns a zero-initialised VestingSchedule if the beneficiary has no
-     *      existing schedule.
+     * @dev    Returns a zero-initialised VestingSchedule if the beneficiary has no
+     *         existing schedule.
      * @param beneficiary Address of the beneficiary to query.
      * @return vestingSchedule The beneficiary's vesting schedule.
      */
@@ -411,10 +411,10 @@ contract TokenVesting is Ownable, Pausable {
 
     /**
      * @notice Returns the amount of vested tokens currently claimable by a beneficiary.
-     * @dev Returns zero for the zero address or an address without a vesting schedule.
-     *      For revoked schedules, uses the amount vested at the time of revocation.
-     *      For active schedules, calculates the vested amount at the current timestamp.
-     *      The returned amount excludes tokens already claimed.
+     * @dev    Returns zero for the zero address or an address without a vesting schedule.
+     *         For revoked schedules, uses the amount vested at the time of revocation.
+     *         For active schedules, calculates the vested amount at the current timestamp.
+     *         The returned amount excludes tokens already claimed.
      * @param beneficiary Address of the beneficiary to query.
      * @return claimableAmount The amount of vested but unclaimed tokens.
      */
@@ -433,9 +433,9 @@ contract TokenVesting is Ownable, Pausable {
 
     /**
      * @notice Returns the total unclaimed allocation for a beneficiary.
-     * @dev Includes both vested and unvested tokens. Returns zero for the zero
-     *      address or an address without a vesting schedule.
-     * @param beneficiary Address of the beneficiary to query.
+     * @dev    Includes both vested and unvested tokens. Returns zero for the zero
+     *         address or an address without a vesting schedule.
+     * @param  beneficiary Address of the beneficiary to query.
      * @return remainingAllocation The beneficiary's allocated tokens that have not
      *         yet been claimed.
      */
