@@ -419,9 +419,9 @@ contract TokenVesting is Ownable, Pausable {
      * @return claimableAmount The amount of vested but unclaimed tokens.
      */
     function getClaimableAmount(address beneficiary) external view returns (uint256) {
-        VestingSchedule storage userVestingSchedule = vestingSchedules[beneficiary];
-
         if (beneficiary == address(0)) return 0;
+
+        VestingSchedule storage userVestingSchedule = vestingSchedules[beneficiary];
 
         uint256 totalVested =
             userVestingSchedule.revoked ? userVestingSchedule.amountVestedAtRevocation : getVestedAmount(beneficiary);
@@ -429,5 +429,23 @@ contract TokenVesting is Ownable, Pausable {
         uint256 claimableAmount = totalVested - userVestingSchedule.amountClaimed;
 
         return claimableAmount;
+    }
+
+    /**
+     * @notice Returns the total unclaimed allocation for a beneficiary.
+     * @dev Includes both vested and unvested tokens. Returns zero for the zero
+     *      address or an address without a vesting schedule.
+     * @param beneficiary Address of the beneficiary to query.
+     * @return remainingAllocation The beneficiary's allocated tokens that have not
+     *         yet been claimed.
+     */
+    function getRemainingAllocation(address beneficiary) external view returns (uint256) {
+        if (beneficiary == address(0)) return 0;
+
+        VestingSchedule storage userVestingSchedule = vestingSchedules[beneficiary];
+
+        uint256 remainingAllocation = userVestingSchedule.totalAllocation - userVestingSchedule.amountClaimed;
+
+        return remainingAllocation;
     }
 }

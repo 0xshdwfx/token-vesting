@@ -1,1 +1,1 @@
-test_GetVestedAmount_Reverts_WhenPaused
+test_GetClaimableAmount_ReturnsZero_AfterAllVestedTokensClaimed
