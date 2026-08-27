@@ -809,6 +809,28 @@ contract TokenVestingTest is Test {
         );
     }
 
+    function test_GetClaimableAmount_ReturnsRecordedVestedAmount_AfterScheduleRevoked() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + ((VESTING_DURATION - CLIFF_DURATION) / 2);
+        vm.warp(midVestingTime);
+
+        uint256 claimAmountBeforeRevoke = tokenVesting.getClaimableAmount(beneficiary1);
+
+        tokenVesting.revokeSchedule(beneficiary1);
+
+        uint256 claimAmountAfterRevoke = tokenVesting.getClaimableAmount(beneficiary1);
+
+        vm.stopPrank();
+
+        assertEq(
+            claimAmountAfterRevoke,
+            claimAmountBeforeRevoke,
+            "claimable amount should return vested amount pre-revocation"
+        );
+    }
+
     //////////////////////
     /// pause/unpause ///
     /////////////////////
