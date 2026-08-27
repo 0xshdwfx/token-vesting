@@ -362,28 +362,6 @@ contract TokenVesting is Ownable, Pausable {
     }
 
     /**
-     * @notice Returns the amount of vested tokens currently claimable by a beneficiary.
-     * @dev Returns zero for the zero address or an address without a vesting schedule.
-     *      For revoked schedules, uses the amount vested at the time of revocation.
-     *      For active schedules, calculates the vested amount at the current timestamp.
-     *      The returned amount excludes tokens already claimed.
-     * @param beneficiary Address of the beneficiary to query.
-     * @return claimableAmount The amount of vested but unclaimed tokens.
-     */
-    function getClaimableAmount(address beneficiary) external view returns (uint256) {
-        VestingSchedule storage userVestingSchedule = vestingSchedules[beneficiary];
-
-        if (beneficiary == address(0)) return 0;
-
-        uint256 totalVested =
-            userVestingSchedule.revoked ? userVestingSchedule.amountVestedAtRevocation : getVestedAmount(beneficiary);
-
-        uint256 claimableAmount = totalVested - userVestingSchedule.amountClaimed;
-
-        return claimableAmount;
-    }
-
-    /**
      * @notice Pauses contract operations.
      * @dev Only the contract owner can call this function. While paused, functions
      *      protected by the `whenNotPaused` modifier cannot be executed. This
@@ -411,11 +389,45 @@ contract TokenVesting is Ownable, Pausable {
     ///// Getter Functions /////
     ///////////////////////////
 
+    /**
+     * @notice Returns the total number of beneficiaries with vesting schedules.
+     * @return beneficiaryCount The number of beneficiaries stored in the
+     *         beneficiaries array.
+     */
     function getBeneficiariesLength() external view returns (uint256) {
         return beneficiaries.length;
     }
 
+    /**
+     * @notice Returns the vesting schedule for a beneficiary.
+     * @dev Returns a zero-initialised VestingSchedule if the beneficiary has no
+     *      existing schedule.
+     * @param beneficiary Address of the beneficiary to query.
+     * @return vestingSchedule The beneficiary's vesting schedule.
+     */
     function getVestingSchedule(address beneficiary) external view returns (VestingSchedule memory) {
         return vestingSchedules[beneficiary];
+    }
+
+    /**
+     * @notice Returns the amount of vested tokens currently claimable by a beneficiary.
+     * @dev Returns zero for the zero address or an address without a vesting schedule.
+     *      For revoked schedules, uses the amount vested at the time of revocation.
+     *      For active schedules, calculates the vested amount at the current timestamp.
+     *      The returned amount excludes tokens already claimed.
+     * @param beneficiary Address of the beneficiary to query.
+     * @return claimableAmount The amount of vested but unclaimed tokens.
+     */
+    function getClaimableAmount(address beneficiary) external view returns (uint256) {
+        VestingSchedule storage userVestingSchedule = vestingSchedules[beneficiary];
+
+        if (beneficiary == address(0)) return 0;
+
+        uint256 totalVested =
+            userVestingSchedule.revoked ? userVestingSchedule.amountVestedAtRevocation : getVestedAmount(beneficiary);
+
+        uint256 claimableAmount = totalVested - userVestingSchedule.amountClaimed;
+
+        return claimableAmount;
     }
 }
