@@ -871,6 +871,32 @@ contract TokenVestingTest is Test {
         assertEq(allocationBeforeClaim, ALLOCATION);
     }
 
+    function test_GetRemainingAllocation_ReturnsReducedAllocation_AfterPartialClaim() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + ((VESTING_DURATION - CLIFF_DURATION) / 2);
+        vm.warp(midVestingTime);
+
+        uint256 allocationBeforeClaim = tokenVesting.getRemainingAllocation(beneficiary1);
+
+        tokenVesting.claimVestedTokens(beneficiary1);
+
+        uint256 totalAllocationAtMidVesting = (ALLOCATION * (midVestingTime - START_TIME)) / VESTING_DURATION;
+
+        uint256 remainingAllocationAfterPartialClaim = allocationBeforeClaim - totalAllocationAtMidVesting;
+
+        uint256 allocationAfterClaim = tokenVesting.getRemainingAllocation(beneficiary1);
+
+        vm.stopPrank();
+
+        assertEq(
+            allocationAfterClaim,
+            remainingAllocationAfterPartialClaim,
+            "remaining allocation should decrease by the claimed amount"
+        );
+    }
+
     //////////////////////
     /// pause/unpause ///
     /////////////////////
