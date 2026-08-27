@@ -740,6 +740,15 @@ contract TokenVestingTest is Test {
         assertFalse(tokenVesting.hasVestingSchedule(address(0)));
     }
 
+    ///////////////////////////
+    /// getClaimableAmount ///
+    /////////////////////////
+
+    function test_GetClaimableAmount_ReturnsZero_WhenBeneficiaryIsZeroAddress() public {
+        uint256 claimableAmount = tokenVesting.getClaimableAmount(address(0));
+        assertEq(claimableAmount, 0, "getClaimableAmount should return 0 for the zero address");
+    }
+
     //////////////////////
     /// pause/unpause ///
     /////////////////////
