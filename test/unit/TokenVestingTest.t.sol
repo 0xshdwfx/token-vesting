@@ -855,6 +855,11 @@ contract TokenVestingTest is Test {
         assertEq(remainingAllocation, 0, "getRemainingAllocation should return 0 for the zero address");
     }
 
+    function test_GetRemainingAllocation_ReturnsZero_WhenBeneficiaryDoesNotExist() public {
+        uint256 remainingAllocation = tokenVesting.getRemainingAllocation(beneficiary1);
+        assertEq(remainingAllocation, 0, "getRemainingAllocation should return 0 when beneficiary does not exist");
+    }
+
     //////////////////////
     /// pause/unpause ///
     /////////////////////
