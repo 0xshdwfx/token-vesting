@@ -301,6 +301,25 @@ contract TokenVestingTest is Test {
         vm.stopPrank();
     }
 
+    function test_RevokeSchedule_DoesNotChangeTotalOutstandingAllocation_WhenScheduleRevoked() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 totalOutstandingBeforeRevoke = tokenVesting.totalOutstandingAllocation();
+
+        tokenVesting.revokeSchedule(beneficiary1);
+
+        uint256 totalOutstandingAfterRevoke = tokenVesting.totalOutstandingAllocation();
+
+        vm.stopPrank();
+
+        assertEq(
+            totalOutstandingAfterRevoke,
+            totalOutstandingBeforeRevoke,
+            "total outstanding allocation should not change after revocation"
+        );
+    }
+
     function test_RevokeSchedule_Reverts_WhenPaused() public {
         vm.startPrank(owner);
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
