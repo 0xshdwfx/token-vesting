@@ -627,6 +627,33 @@ contract TokenVestingTest is Test {
         vm.stopPrank();
     }
 
+    function test_ReclaimUnvestedTokens_DecreasesTotalOutstandingAllocation_WhenUnvestedTokensReclaimed() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + ((VESTING_DURATION - CLIFF_DURATION) / 2);
+        vm.warp(midVestingTime);
+
+        uint256 totalOutstandingBeforeReclaiming = tokenVesting.totalOutstandingAllocation();
+
+        tokenVesting.revokeSchedule(beneficiary1);
+
+        uint256 amountToReclaim = tokenVesting.getVestingSchedule(beneficiary1).totalAllocation
+            - tokenVesting.getVestingSchedule(beneficiary1).amountVestedAtRevocation;
+
+        tokenVesting.reclaimUnvestedTokens(beneficiary1);
+
+        uint256 totalOutstandingAfterReclaiming = tokenVesting.totalOutstandingAllocation();
+
+        vm.stopPrank();
+
+        assertEq(
+            totalOutstandingAfterReclaiming,
+            totalOutstandingBeforeReclaiming - amountToReclaim,
+            "total outstanding allocation should decrease by reclaim amount"
+        );
+    }
+
     function test_ReclaimUnvestedTokens_Reverts_WhenPaused() public {
         vm.startPrank(owner);
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
