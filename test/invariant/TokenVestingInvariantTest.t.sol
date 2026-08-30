@@ -27,6 +27,6 @@ contract TokenVestingInvariantTest is Test {
         vm.prank(owner);
         if (!vestingToken.transfer(address(tokenVesting), 1_000_000e18)) revert TokenVestingTest__TransferFailed();
 
-        handler = new TokenVestingHandler(tokenVesting);
+        handler = new TokenVestingHandler(tokenVesting, owner, makeAddr("handlerBeneficiary"));
     }
 }
