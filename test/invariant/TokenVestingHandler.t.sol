@@ -5,8 +5,8 @@ import {Test} from "forge-std/Test.sol";
 import {TokenVesting} from "../../src/TokenVesting.sol";
 
 contract TokenVestingHandler is Test {
-    TokenVesting public immutable tokenVesting;
-    address public immutable owner;
+    TokenVesting public immutable TOKEN_VESTING;
+    address public immutable OWNER;
     address public beneficiary;
     address[] public beneficiaries;
 
@@ -15,12 +15,13 @@ contract TokenVestingHandler is Test {
     uint256 public constant CLIFF_DURATION = 30 days;
     uint256 public constant VESTING_DURATION = 365 days;
     uint160 public beneficiaryCount;
+    bool public scheduleRevoked;
 
     error TokenVestingHandler__AddressCounterOverflow();
 
     constructor(TokenVesting _tokenVesting, address _owner, address _beneficiary) {
-        tokenVesting = _tokenVesting;
-        owner = _owner;
+        TOKEN_VESTING = _tokenVesting;
+        OWNER = _owner;
         beneficiary = _beneficiary;
     }
 
@@ -33,24 +34,33 @@ contract TokenVestingHandler is Test {
 
         beneficiary = address(beneficiaryCount);
 
-        vm.prank(owner);
+        vm.prank(OWNER);
 
-        tokenVesting.addBeneficiary(beneficiary, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+        TOKEN_VESTING.addBeneficiary(beneficiary, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
         beneficiaries.push(beneficiary);
     }
 
     function claimVestedTokens() external {
         if (beneficiaries.length == 0) return;
 
-        uint256 claimableAmountBeforeWarp = tokenVesting.getClaimableAmount(beneficiaries[0]);
+        uint256 claimableAmountBeforeWarp = TOKEN_VESTING.getClaimableAmount(beneficiaries[0]);
 
         vm.warp(block.timestamp + 10 days);
 
-        uint256 claimableAmountAfterWarp = tokenVesting.getClaimableAmount(beneficiaries[0]);
+        uint256 claimableAmountAfterWarp = TOKEN_VESTING.getClaimableAmount(beneficiaries[0]);
 
         if (claimableAmountAfterWarp > claimableAmountBeforeWarp) {
-            tokenVesting.claimVestedTokens(beneficiaries[0]);
+            TOKEN_VESTING.claimVestedTokens(beneficiaries[0]);
         }
+    }
+
+    function revokeSchedule() external {
+        if (beneficiaries.length == 0 || scheduleRevoked) return;
+
+        scheduleRevoked = true;
+
+        vm.prank(OWNER);
+        TOKEN_VESTING.revokeSchedule(beneficiaries[0]);
     }
 }
 
