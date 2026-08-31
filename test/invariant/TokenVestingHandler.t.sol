@@ -8,6 +8,7 @@ contract TokenVestingHandler is Test {
     TokenVesting public immutable tokenVesting;
     address public immutable owner;
     address public beneficiary;
+    address[] public beneficiaries;
 
     uint256 public constant ALLOCATION = 1000e18;
     uint256 public constant START_TIME = 1_000_000;
@@ -16,6 +17,7 @@ contract TokenVestingHandler is Test {
     uint160 public beneficiaryCount;
 
     error TokenVestingHandler__AddressCounterOverflow();
+    error TokenVestingHandler__NoBeneficiariesExist();
 
     constructor(TokenVesting _tokenVesting, address _owner, address _beneficiary) {
         tokenVesting = _tokenVesting;
@@ -35,6 +37,16 @@ contract TokenVestingHandler is Test {
         vm.prank(owner);
 
         tokenVesting.addBeneficiary(beneficiary, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+        beneficiaries.push(beneficiary);
+    }
+
+    function claimVestedTokens() external {
+        if (beneficiaries.length == 0) revert TokenVestingHandler__NoBeneficiariesExist();
+
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + ((VESTING_DURATION - CLIFF_DURATION) / 2);
+        vm.warp(midVestingTime);
+
+        tokenVesting.claimVestedTokens(beneficiaries[0]);
     }
 }
 
