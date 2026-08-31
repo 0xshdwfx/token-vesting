@@ -16,6 +16,7 @@ contract TokenVestingHandler is Test {
     uint256 public constant VESTING_DURATION = 365 days;
     uint160 public beneficiaryCount;
     bool public scheduleRevoked;
+    bool public unvestedTokensReclaimed;
 
     error TokenVestingHandler__AddressCounterOverflow();
 
@@ -61,6 +62,20 @@ contract TokenVestingHandler is Test {
 
         vm.prank(OWNER);
         TOKEN_VESTING.revokeSchedule(beneficiaries[0]);
+    }
+
+    function reclaimUnvestedTokens() external {
+        if (beneficiaries.length == 0) return;
+
+        if (scheduleRevoked == false) return;
+
+        if (unvestedTokensReclaimed) return;
+
+        vm.prank(OWNER);
+
+        TOKEN_VESTING.reclaimUnvestedTokens(beneficiaries[0]);
+
+        unvestedTokensReclaimed = true;
     }
 }
 
