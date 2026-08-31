@@ -17,7 +17,6 @@ contract TokenVestingHandler is Test {
     uint160 public beneficiaryCount;
 
     error TokenVestingHandler__AddressCounterOverflow();
-    error TokenVestingHandler__NoBeneficiariesExist();
 
     constructor(TokenVesting _tokenVesting, address _owner, address _beneficiary) {
         tokenVesting = _tokenVesting;
@@ -41,12 +40,17 @@ contract TokenVestingHandler is Test {
     }
 
     function claimVestedTokens() external {
-        if (beneficiaries.length == 0) revert TokenVestingHandler__NoBeneficiariesExist();
+        if (beneficiaries.length == 0) return;
 
-        uint256 midVestingTime = START_TIME + CLIFF_DURATION + ((VESTING_DURATION - CLIFF_DURATION) / 2);
-        vm.warp(midVestingTime);
+        uint256 claimableAmountBeforeWarp = tokenVesting.getClaimableAmount(beneficiaries[0]);
 
-        tokenVesting.claimVestedTokens(beneficiaries[0]);
+        vm.warp(block.timestamp + 10 days);
+
+        uint256 claimableAmountAfterWarp = tokenVesting.getClaimableAmount(beneficiaries[0]);
+
+        if (claimableAmountAfterWarp > claimableAmountBeforeWarp) {
+            tokenVesting.claimVestedTokens(beneficiaries[0]);
+        }
     }
 }
 
