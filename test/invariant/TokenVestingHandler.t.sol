@@ -77,5 +77,17 @@ contract TokenVestingHandler is Test {
 
         unvestedTokensReclaimed = true;
     }
+
+    function claimRevokedBeneficiary() external {
+        if (beneficiaries.length == 0) return;
+
+        if (scheduleRevoked == false) return;
+
+        uint256 claimableAmount = TOKEN_VESTING.getClaimableAmount(beneficiaries[0]);
+
+        if (claimableAmount == 0) return;
+
+        TOKEN_VESTING.claimVestedTokens(beneficiaries[0]);
+    }
 }
 
