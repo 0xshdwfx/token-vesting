@@ -89,5 +89,13 @@ contract TokenVestingHandler is Test {
 
         TOKEN_VESTING.claimVestedTokens(beneficiaries[0]);
     }
+
+    ////////////////////////
+    /// Helper Functions///
+    ///////////////////////
+
+    function getBeneficiariesLength() external view returns (uint256) {
+        return beneficiaries.length;
+    }
 }
 

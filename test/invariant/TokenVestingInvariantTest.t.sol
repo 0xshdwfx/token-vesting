@@ -35,4 +35,15 @@ contract TokenVestingInvariantTest is Test {
     function invariant_TokenBalanceCoversOutstandingAllocation() public view {
         assertGe(vestingToken.balanceOf(address(tokenVesting)), tokenVesting.totalOutstandingAllocation());
     }
+
+    function invariant_ClaimedAmountDoesNotExceedAllocation() public view {
+        uint256 beneficiariesLength = handler.getBeneficiariesLength();
+
+        for (uint256 i = 0; i < beneficiariesLength; i++) {
+            address beneficiary = handler.beneficiaries(i);
+            TokenVesting.VestingSchedule memory schedule = tokenVesting.getVestingSchedule(beneficiary);
+
+            assertGe(schedule.totalAllocation, schedule.amountClaimed);
+        }
+    }
 }
