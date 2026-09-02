@@ -333,6 +333,22 @@ contract TokenVestingTest is Test {
         vm.stopPrank();
     }
 
+    function test_RevokeSchedule_RecordsZeroVestedAmount_WhenRevokedBeforeCliff() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 cliffEnd = START_TIME + CLIFF_DURATION;
+        vm.warp(cliffEnd - 1);
+
+        tokenVesting.revokeSchedule(beneficiary1);
+
+        uint256 amountVestedAtRevocation = tokenVesting.getVestingSchedule(beneficiary1).amountVestedAtRevocation;
+
+        vm.stopPrank();
+
+        assertEq(amountVestedAtRevocation, 0, "amount vested at revocation should be zero before the cliff");
+    }
+
     //////////////////////////
     /// claimVestedTokens ///
     ////////////////////////
