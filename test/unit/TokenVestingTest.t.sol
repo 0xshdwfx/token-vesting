@@ -544,6 +544,26 @@ contract TokenVestingTest is Test {
         vm.stopPrank();
     }
 
+    function test_ClaimVestedTokens_ReturnsCorrectAmount_WhenClaimingAtCliff() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 claimAtCliffTime = START_TIME + CLIFF_DURATION;
+        vm.warp(claimAtCliffTime);
+
+        uint256 amountVestedAtCliff = (ALLOCATION * (claimAtCliffTime - START_TIME)) / VESTING_DURATION;
+
+        uint256 vestedAmountToClaim = tokenVesting.claimVestedTokens(beneficiary1);
+
+        vm.stopPrank();
+
+        assertEq(
+            amountVestedAtCliff,
+            vestedAmountToClaim,
+            "claimVestedTokens should return correct vested fraction when claiming exactly at cliff"
+        );
+    }
+
     //////////////////////////////
     /// reclaimUnvestedTokens ///
     ////////////////////////////
