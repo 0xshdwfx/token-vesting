@@ -564,6 +564,26 @@ contract TokenVestingTest is Test {
         );
     }
 
+    function test_ClaimVestedTokens_ReturnsFullAllocation_WhenClaimingAtVestingCompletion() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 vestingCompletionTime = START_TIME + VESTING_DURATION;
+        vm.warp(vestingCompletionTime);
+
+        uint256 amountVestedAtCompletion = (ALLOCATION * (vestingCompletionTime - START_TIME)) / VESTING_DURATION;
+
+        uint256 vestedAmountToClaim = tokenVesting.claimVestedTokens(beneficiary1);
+
+        vm.stopPrank();
+
+        assertEq(
+            amountVestedAtCompletion,
+            vestedAmountToClaim,
+            "claimVestedTokens should return correct vested amount when claiming at vesting completion"
+        );
+    }
+
     //////////////////////////////
     /// reclaimUnvestedTokens ///
     ////////////////////////////
