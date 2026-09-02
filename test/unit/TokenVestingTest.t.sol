@@ -365,6 +365,31 @@ contract TokenVestingTest is Test {
         assertEq(amountVestedAtRevocation, ALLOCATION, "amount vested at revocation should equal full allocation");
     }
 
+    function test_RevokeSchedule_PreservesClaimedAmount_WhenPartiallyClaimedBeforeRevocation() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 midVestingTime = START_TIME + CLIFF_DURATION + ((VESTING_DURATION - CLIFF_DURATION) / 2);
+        vm.warp(midVestingTime);
+
+        uint256 claimedAmount = tokenVesting.claimVestedTokens(beneficiary1);
+
+        uint256 amountVestedBeforeRevocation = tokenVesting.getVestedAmount(beneficiary1);
+
+        tokenVesting.revokeSchedule(beneficiary1);
+
+        vm.stopPrank();
+
+        TokenVesting.VestingSchedule memory schedule = tokenVesting.getVestingSchedule(beneficiary1);
+
+        assertEq(schedule.amountClaimed, claimedAmount, "amount claimed should remain unchanged after revocation");
+        assertEq(
+            schedule.amountVestedAtRevocation,
+            amountVestedBeforeRevocation,
+            "vested amount at revocation should match the amount vested before revocation"
+        );
+    }
+
     //////////////////////////
     /// claimVestedTokens ///
     ////////////////////////
