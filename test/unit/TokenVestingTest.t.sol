@@ -198,7 +198,7 @@ contract TokenVestingTest is Test {
     /// getVestedAmount ///
     //////////////////////
 
-    function test_GetVestedAmount_ReturnsZero_WhenBeneficiaryDoesNotExist() public {
+    function test_GetVestedAmount_ReturnsZero_WhenBeneficiaryDoesNotExist() public view {
         uint256 vestedAmount = tokenVesting.getVestedAmount(beneficiary1);
         assertEq(vestedAmount, 0, "getVestedAmount should return 0 when does not exist");
     }
@@ -824,11 +824,11 @@ contract TokenVestingTest is Test {
         assertTrue(tokenVesting.hasVestingSchedule(beneficiary1), "function should return true");
     }
 
-    function test_HasVestingSchedule_ReturnsFalse_WhenBeneficiaryDoesNotExist() public {
+    function test_HasVestingSchedule_ReturnsFalse_WhenBeneficiaryDoesNotExist() public view {
         assertFalse(tokenVesting.hasVestingSchedule(beneficiary1), "function should return false");
     }
 
-    function test_HasVestingSchedule_ReturnsFalse_WhenBeneficiaryIsZeroAddress() public {
+    function test_HasVestingSchedule_ReturnsFalse_WhenBeneficiaryIsZeroAddress() public view {
         assertFalse(tokenVesting.hasVestingSchedule(address(0)));
     }
 
@@ -836,12 +836,12 @@ contract TokenVestingTest is Test {
     /// getClaimableAmount ///
     /////////////////////////
 
-    function test_GetClaimableAmount_ReturnsZero_WhenBeneficiaryIsZeroAddress() public {
+    function test_GetClaimableAmount_ReturnsZero_WhenBeneficiaryIsZeroAddress() public view {
         uint256 claimableAmount = tokenVesting.getClaimableAmount(address(0));
         assertEq(claimableAmount, 0, "getClaimableAmount should return 0 for the zero address");
     }
 
-    function test_GetClaimableAmount_ReturnsZero_WhenBeneficiaryDoesNotExist() public {
+    function test_GetClaimableAmount_ReturnsZero_WhenBeneficiaryDoesNotExist() public view {
         uint256 claimableAmount = tokenVesting.getClaimableAmount(beneficiary1);
         assertEq(claimableAmount, 0, "getClaimableAmount should return 0 when beneficiary does not exist");
     }
@@ -942,12 +942,12 @@ contract TokenVestingTest is Test {
     /// getRemainingAllocation ///
     /////////////////////////////
 
-    function test_GetRemainingAllocation_ReturnsZero_WhenBeneficiaryIsZeroAddress() public {
+    function test_GetRemainingAllocation_ReturnsZero_WhenBeneficiaryIsZeroAddress() public view {
         uint256 remainingAllocation = tokenVesting.getRemainingAllocation(address(0));
         assertEq(remainingAllocation, 0, "getRemainingAllocation should return 0 for the zero address");
     }
 
-    function test_GetRemainingAllocation_ReturnsZero_WhenBeneficiaryDoesNotExist() public {
+    function test_GetRemainingAllocation_ReturnsZero_WhenBeneficiaryDoesNotExist() public view {
         uint256 remainingAllocation = tokenVesting.getRemainingAllocation(beneficiary1);
         assertEq(remainingAllocation, 0, "getRemainingAllocation should return 0 when beneficiary does not exist");
     }
