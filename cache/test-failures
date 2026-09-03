@@ -1,1 +1,1 @@
-test_WithdrawExcessTokens_WithdrawsUnsolicitedTokens_WhenSentDirectlyToContract
+test_WithdrawExcessTokens_Works_WhenPaused

@@ -908,17 +908,14 @@ contract TokenVestingTest is Test {
 
     function test_WithdrawExcessTokens_WithdrawsUnsolicitedTokens_WhenSentDirectlyToContract() public {
         vm.startPrank(owner);
-
         tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
 
         uint256 outstandingAllocationBefore = tokenVesting.totalOutstandingAllocation();
 
         uint256 additionalTokens = 100_000e18;
-
         deal(address(vestingToken), owner, additionalTokens);
 
         bool success = vestingToken.transfer(address(tokenVesting), additionalTokens);
-
         assertTrue(success, "token transfer should succeed");
 
         uint256 ownerBalanceBeforeWithdrawal = vestingToken.balanceOf(owner);
@@ -946,6 +943,36 @@ contract TokenVestingTest is Test {
             ownerBalanceAfterWithdrawal,
             ownerBalanceBeforeWithdrawal + expectedExcess,
             "owner should receive all excess tokens"
+        );
+    }
+
+    function test_WithdrawExcessTokens_Works_WhenPaused() public {
+        vm.startPrank(owner);
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 additionalTokens = 100_000e18;
+        deal(address(vestingToken), owner, additionalTokens);
+
+        bool success = vestingToken.transfer(address(tokenVesting), additionalTokens);
+        assertTrue(success, "token transfer should succeed");
+
+        tokenVesting.pause();
+
+        uint256 outstandingAllocationBefore = tokenVesting.totalOutstandingAllocation();
+
+        uint256 ownerBalanceBeforeWithdrawal = vestingToken.balanceOf(owner);
+        uint256 expectedExcess = vestingToken.balanceOf(address(tokenVesting)) - outstandingAllocationBefore;
+
+        tokenVesting.withdrawExcessTokens();
+
+        uint256 ownerBalanceAfterWithdrawal = vestingToken.balanceOf(owner);
+
+        vm.stopPrank();
+
+        assertEq(
+            ownerBalanceAfterWithdrawal,
+            ownerBalanceBeforeWithdrawal + expectedExcess,
+            "owner should receive all excess tokens when contract is paused"
         );
     }
 
