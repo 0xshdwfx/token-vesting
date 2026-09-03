@@ -906,6 +906,49 @@ contract TokenVestingTest is Test {
         tokenVesting.withdrawExcessTokens();
     }
 
+    function test_WithdrawExcessTokens_WithdrawsUnsolicitedTokens_WhenSentDirectlyToContract() public {
+        vm.startPrank(owner);
+
+        tokenVesting.addBeneficiary(beneficiary1, ALLOCATION, START_TIME, CLIFF_DURATION, VESTING_DURATION);
+
+        uint256 outstandingAllocationBefore = tokenVesting.totalOutstandingAllocation();
+
+        uint256 additionalTokens = 100_000e18;
+
+        deal(address(vestingToken), owner, additionalTokens);
+
+        bool success = vestingToken.transfer(address(tokenVesting), additionalTokens);
+
+        assertTrue(success, "token transfer should succeed");
+
+        uint256 ownerBalanceBeforeWithdrawal = vestingToken.balanceOf(owner);
+        uint256 expectedExcess = vestingToken.balanceOf(address(tokenVesting)) - outstandingAllocationBefore;
+
+        tokenVesting.withdrawExcessTokens();
+
+        uint256 outstandingAllocationAfter = tokenVesting.totalOutstandingAllocation();
+
+        uint256 ownerBalanceAfterWithdrawal = vestingToken.balanceOf(owner);
+
+        vm.stopPrank();
+
+        assertEq(
+            outstandingAllocationAfter, outstandingAllocationBefore, "outstanding allocation should remain unchanged"
+        );
+
+        assertGe(
+            vestingToken.balanceOf(address(tokenVesting)),
+            outstandingAllocationBefore,
+            "contract should retain enough tokens to cover outstanding allocation"
+        );
+
+        assertEq(
+            ownerBalanceAfterWithdrawal,
+            ownerBalanceBeforeWithdrawal + expectedExcess,
+            "owner should receive all excess tokens"
+        );
+    }
+
     ///////////////////////////
     /// hasVestingSchedule ///
     /////////////////////////
