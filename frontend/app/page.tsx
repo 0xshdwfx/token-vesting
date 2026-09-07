@@ -4,17 +4,17 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import {
 	useAccount,
 	useReadContract,
-	useWriteContract,
 	useWaitForTransactionReceipt,
+	useWriteContract,
 } from 'wagmi';
 import { formatUnits } from 'viem';
 import { toast } from 'sonner';
 
-import { TOKEN_VESTING_ADDRESS } from '@/lib/contracts/addresses';
-import { tokenVestingAbi } from '@/lib/contracts/tokenVestingAbi';
-
+import ClaimButton from '@/components/ClaimButton';
 import Metric from '@/components/Metric';
 import Timeline from '@/components/Timeline';
+import { TOKEN_VESTING_ADDRESS } from '@/lib/contracts/addresses';
+import { tokenVestingAbi } from '@/lib/contracts/tokenVestingAbi';
 
 export default function Home() {
 	const { address, isConnected } = useAccount();
@@ -83,14 +83,6 @@ export default function Home() {
 		});
 	}
 
-	const isClaimDisabled =
-		!isConnected ||
-		!address ||
-		!claimableAmount ||
-		claimableAmount === BigInt(0) ||
-		isClaimPending ||
-		isClaimConfirming;
-
 	return (
 		<main className='min-h-screen bg-slate-950 px-6 py-12 text-white'>
 			<div className='mx-auto w-full max-w-5xl'>
@@ -135,10 +127,12 @@ export default function Home() {
 									label='Total allocation'
 									value={formatTokenAmount(schedule.totalAllocation)}
 								/>
+
 								<Metric
 									label='Claimed'
 									value={formatTokenAmount(schedule.amountClaimed)}
 								/>
+
 								<Metric
 									label='Claimable'
 									value={formatTokenAmount(claimableAmount ?? BigInt(0))}
@@ -151,16 +145,13 @@ export default function Home() {
 								vestingDuration={schedule.vestingDuration}
 							/>
 
-							<button
-								type='button'
-								onClick={handleClaim}
-								disabled={isClaimDisabled}
-								className='mt-8 rounded-lg bg-cyan-500 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50'
-							>
-								{isClaimPending || isClaimConfirming
-									? 'Claiming...'
-									: 'Claim vested tokens'}
-							</button>
+							<ClaimButton
+								address={address}
+								claimableAmount={claimableAmount}
+								isClaimPending={isClaimPending}
+								isClaimConfirming={isClaimConfirming}
+								onClaim={handleClaim}
+							/>
 						</>
 					)}
 				</section>
