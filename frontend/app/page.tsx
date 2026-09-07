@@ -13,6 +13,8 @@ import { toast } from 'sonner';
 import { TOKEN_VESTING_ADDRESS } from '@/lib/contracts/addresses';
 import { tokenVestingAbi } from '@/lib/contracts/tokenVestingAbi';
 
+import Metric from '@/components/Metric';
+
 export default function Home() {
 	const { address, isConnected } = useAccount();
 
@@ -157,20 +159,6 @@ export default function Home() {
 				</section>
 			</div>
 		</main>
-	);
-}
-
-type MetricProps = {
-	label: string;
-	value: string;
-};
-
-function Metric({ label, value }: MetricProps) {
-	return (
-		<div className='rounded-xl border border-slate-800 bg-slate-950 p-5'>
-			<p className='text-sm text-slate-400'>{label}</p>
-			<p className='mt-2 text-2xl font-semibold'>{value}</p>
-		</div>
 	);
 }
 
