@@ -26,6 +26,17 @@ export default function Home() {
 		},
 	});
 
+	const { data: hasSchedule, isLoading: isHasScheduleLoading } =
+		useReadContract({
+			address: TOKEN_VESTING_ADDRESS,
+			abi: tokenVestingAbi,
+			functionName: 'hasVestingSchedule',
+			args: address ? [address] : undefined,
+			query: {
+				enabled: Boolean(address),
+			},
+		});
+
 	const { data: claimableAmount } = useReadContract({
 		address: TOKEN_VESTING_ADDRESS,
 		abi: tokenVestingAbi,
@@ -101,17 +112,20 @@ export default function Home() {
 						</p>
 					)}
 
-					{isConnected && isScheduleLoading && (
+					{isConnected && (isScheduleLoading || isHasScheduleLoading) && (
 						<p className='text-slate-300'>Loading your vesting schedule...</p>
 					)}
 
-					{isConnected && !isScheduleLoading && !schedule && (
-						<p className='text-slate-300'>
-							No vesting schedule was found for this wallet.
-						</p>
-					)}
+					{isConnected &&
+						!isScheduleLoading &&
+						!isHasScheduleLoading &&
+						hasSchedule === false && (
+							<p className='text-slate-300'>
+								No vesting schedule was found for this wallet.
+							</p>
+						)}
 
-					{isConnected && schedule && (
+					{isConnected && hasSchedule === true && schedule && (
 						<>
 							<div className='grid gap-4 md:grid-cols-3'>
 								<Metric

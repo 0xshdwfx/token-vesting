@@ -13,9 +13,4 @@ export const config = getDefaultConfig({
 	projectId: '9a884bea4e5448474506781fac3613f0',
 	chains: [sepolia],
 	ssr: true,
-	transports: {
-		[sepolia.id]: http(
-			`https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
-		),
-	},
 });
