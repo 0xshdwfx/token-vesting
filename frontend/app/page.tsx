@@ -14,6 +14,7 @@ import { TOKEN_VESTING_ADDRESS } from '@/lib/contracts/addresses';
 import { tokenVestingAbi } from '@/lib/contracts/tokenVestingAbi';
 
 import Metric from '@/components/Metric';
+import Timeline from '@/components/Timeline';
 
 export default function Home() {
 	const { address, isConnected } = useAccount();
@@ -143,6 +144,12 @@ export default function Home() {
 									value={formatTokenAmount(claimableAmount ?? BigInt(0))}
 								/>
 							</div>
+
+							<Timeline
+								startTime={schedule.startTime}
+								cliffDuration={schedule.cliffDuration}
+								vestingDuration={schedule.vestingDuration}
+							/>
 
 							<button
 								type='button'
