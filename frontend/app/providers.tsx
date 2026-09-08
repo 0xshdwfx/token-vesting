@@ -20,7 +20,7 @@ export default function Providers({ children }: ProvidersProps) {
 			<QueryClientProvider client={queryClient}>
 				<RainbowKitProvider>
 					{children}
-					<Toaster richColors position='top-right' />
+					<Toaster richColors position='bottom-right' />
 				</RainbowKitProvider>
 			</QueryClientProvider>
 		</WagmiProvider>
