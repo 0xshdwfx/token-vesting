@@ -28,10 +28,13 @@ export function useClaimVestedTokens() {
 		},
 	});
 
-	const { isLoading: isConfirming, isSuccess: isConfirmed } =
-		useWaitForTransactionReceipt({
-			hash: transactionHash,
-		});
+	const {
+		isLoading: isConfirming,
+		isSuccess: isConfirmed,
+		error: confirmationError,
+	} = useWaitForTransactionReceipt({
+		hash: transactionHash,
+	});
 
 	useEffect(() => {
 		if (!isConfirmed) {
@@ -41,6 +44,14 @@ export function useClaimVestedTokens() {
 		void queryClient.invalidateQueries();
 		toast.success('Claim confirmed');
 	}, [isConfirmed, queryClient]);
+
+	useEffect(() => {
+		if (!confirmationError) {
+			return;
+		}
+
+		toast.error(confirmationError.message);
+	}, [confirmationError]);
 
 	function claim(beneficiary: Address, claimableAmount: bigint | undefined) {
 		if (!claimableAmount || claimableAmount === BigInt(0)) {
