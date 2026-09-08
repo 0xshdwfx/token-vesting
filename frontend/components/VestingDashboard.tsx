@@ -1,75 +1,34 @@
 'use client';
 
-import {
-	useAccount,
-	useReadContract,
-	useWaitForTransactionReceipt,
-	useWriteContract,
-} from 'wagmi';
-import { formatUnits } from 'viem';
-import { toast } from 'sonner';
-
 import ClaimButton from '@/components/ClaimButton';
 import Metric from '@/components/Metric';
 import Timeline from '@/components/Timeline';
-import { TOKEN_VESTING_ADDRESS } from '@/lib/contracts/addresses';
-import { tokenVestingAbi } from '@/lib/contracts/tokenVestingAbi';
+import { useClaimVestedTokens } from '@/hooks/useClaimVestedTokens';
+import { useVestingSchedule } from '@/hooks/useVestingSchedule';
+import { formatUnits } from 'viem';
 
 export default function VestingDashboard() {
-	const { address, isConnected } = useAccount();
-
-	const { data: schedule, isLoading: isScheduleLoading } = useReadContract({
-		address: TOKEN_VESTING_ADDRESS,
-		abi: tokenVestingAbi,
-		functionName: 'getVestingSchedule',
-		args: address ? [address] : undefined,
-		query: { enabled: Boolean(address) },
-	});
-
-	const { data: hasSchedule, isLoading: isHasScheduleLoading } =
-		useReadContract({
-			address: TOKEN_VESTING_ADDRESS,
-			abi: tokenVestingAbi,
-			functionName: 'hasVestingSchedule',
-			args: address ? [address] : undefined,
-			query: { enabled: Boolean(address) },
-		});
-
-	const { data: claimableAmount } = useReadContract({
-		address: TOKEN_VESTING_ADDRESS,
-		abi: tokenVestingAbi,
-		functionName: 'getClaimableAmount',
-		args: address ? [address] : undefined,
-		query: { enabled: Boolean(address) },
-	});
+	const {
+		address,
+		isConnected,
+		schedule,
+		hasSchedule,
+		claimableAmount,
+		isLoading,
+	} = useVestingSchedule();
 
 	const {
-		writeContract,
-		data: claimTransactionHash,
+		claim,
 		isPending: isClaimPending,
-	} = useWriteContract({
-		mutation: {
-			onSuccess: () => toast.success('Claim transaction submitted'),
-			onError: (error) => toast.error(error.message),
-		},
-	});
-
-	const { isLoading: isClaimConfirming } = useWaitForTransactionReceipt({
-		hash: claimTransactionHash,
-	});
+		isConfirming: isClaimConfirming,
+	} = useClaimVestedTokens();
 
 	function handleClaim() {
-		if (!address || !claimableAmount || claimableAmount === BigInt(0)) {
-			toast.error('No tokens are currently claimable');
+		if (!address) {
 			return;
 		}
 
-		writeContract({
-			address: TOKEN_VESTING_ADDRESS,
-			abi: tokenVestingAbi,
-			functionName: 'claimVestedTokens',
-			args: [address],
-		});
+		claim(address, claimableAmount);
 	}
 
 	if (!isConnected) {
@@ -82,7 +41,7 @@ export default function VestingDashboard() {
 		);
 	}
 
-	if (isScheduleLoading || isHasScheduleLoading) {
+	if (isLoading) {
 		return (
 			<section className='mt-12 rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-2xl'>
 				<p className='text-slate-300'>Loading your vesting schedule...</p>
