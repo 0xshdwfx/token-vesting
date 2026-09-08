@@ -84,6 +84,15 @@ export default function VestingDashboard() {
 				vestingDuration={schedule.vestingDuration}
 			/>
 
+			<p className='mt-6 text-sm text-slate-400'>
+				Status:{' '}
+				<span
+					className={schedule.revoked ? 'text-amber-400' : 'text-emerald-400'}
+				>
+					{schedule.revoked ? 'Revoked' : 'Active'}
+				</span>
+			</p>
+
 			<ClaimButton
 				address={address}
 				claimableAmount={claimableAmount}
