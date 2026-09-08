@@ -19,9 +19,6 @@ export function useClaimVestedTokens() {
 		isPending,
 	} = useWriteContract({
 		mutation: {
-			onSuccess: () => {
-				toast.success('Claim transaction submitted');
-			},
 			onError: (error) => {
 				toast.error(error.message);
 			},
