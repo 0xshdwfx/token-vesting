@@ -50,6 +50,15 @@ export function useClaimVestedTokens() {
 		toast.error(confirmationError.message);
 	}, [confirmationError]);
 
+	useEffect(() => {
+		if (!transactionHash || !isConfirmed) {
+			return;
+		}
+
+		void queryClient.invalidateQueries();
+		toast.success('Claim confirmed');
+	}, [transactionHash, isConfirmed, queryClient]);
+
 	function claim(beneficiary: Address, claimableAmount: bigint | undefined) {
 		if (!claimableAmount || claimableAmount === BigInt(0)) {
 			toast.error('No tokens are currently claimable');
