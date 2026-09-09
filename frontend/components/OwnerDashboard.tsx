@@ -2,8 +2,9 @@
 
 import { formatUnits } from 'viem';
 
-import AddBeneficiaryForm from '@/components/AddBeneficiaryForm';
 import Metric from '@/components/Metric';
+import AddBeneficiaryForm from '@/components/AddBeneficiaryForm';
+import BeneficiaryList from '@/components/BeneficiaryList';
 import { useOwnerOverview } from '@/hooks/useOwnerOverview';
 
 type OwnerDashboardProps = {
@@ -49,6 +50,7 @@ export default function OwnerDashboard({ isOwner }: OwnerDashboardProps) {
 			</section>
 
 			<AddBeneficiaryForm isOwner={isOwner} />
+			<BeneficiaryList isOwner={isOwner} />
 		</>
 	);
 }
