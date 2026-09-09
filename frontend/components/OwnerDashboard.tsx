@@ -7,6 +7,8 @@ import Metric from '@/components/Metric';
 import { TOKEN_VESTING_ADDRESS } from '@/lib/contracts/addresses';
 import { tokenVestingAbi } from '@/lib/contracts/tokenVestingAbi';
 
+import AddBeneficiaryForm from '@/components/AddBeneficiaryForm';
+
 type OwnerDashboardProps = {
 	isOwner: boolean;
 };
@@ -44,36 +46,40 @@ export default function OwnerDashboard({ isOwner }: OwnerDashboardProps) {
 	}
 
 	return (
-		<section className='mt-8 rounded-2xl border border-amber-900/50 bg-slate-900 p-8 shadow-2xl'>
-			<div>
-				<p className='text-sm font-medium text-amber-400'>
-					Owner administration
-				</p>
+		<>
+			<section className='mt-8 rounded-2xl border border-amber-900/50 bg-slate-900 p-8 shadow-2xl'>
+				<div>
+					<p className='text-sm font-medium text-amber-400'>
+						Owner administration
+					</p>
 
-				<h2 className='mt-2 text-2xl font-semibold text-white'>
-					Contract overview
-				</h2>
-			</div>
+					<h2 className='mt-2 text-2xl font-semibold text-white'>
+						Contract overview
+					</h2>
+				</div>
 
-			<div className='mt-6 grid gap-4 md:grid-cols-3'>
-				<Metric
-					label='Outstanding allocation'
-					value={`${formatUnits(
-						totalOutstandingAllocation ?? BigInt(0),
-						18,
-					)} VST`}
-				/>
+				<div className='mt-6 grid gap-4 md:grid-cols-3'>
+					<Metric
+						label='Outstanding allocation'
+						value={`${formatUnits(
+							totalOutstandingAllocation ?? BigInt(0),
+							18,
+						)} VST`}
+					/>
 
-				<Metric
-					label='Beneficiaries'
-					value={String(beneficiaryCount ?? BigInt(0))}
-				/>
+					<Metric
+						label='Beneficiaries'
+						value={String(beneficiaryCount ?? BigInt(0))}
+					/>
 
-				<Metric
-					label='Contract status'
-					value={isPaused ? 'Paused' : 'Active'}
-				/>
-			</div>
-		</section>
+					<Metric
+						label='Contract status'
+						value={isPaused ? 'Paused' : 'Active'}
+					/>
+				</div>
+			</section>
+
+			<AddBeneficiaryForm isOwner={isOwner} />
+		</>
 	);
 }
