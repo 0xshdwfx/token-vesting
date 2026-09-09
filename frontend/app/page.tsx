@@ -2,6 +2,7 @@
 
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import VestingDashboard from '@/components/VestingDashboard';
+import OwnerDashboard from '@/components/OwnerDashboard';
 import { useTokenVestingOwner } from '@/hooks/useTokenVestingOwner';
 
 export default function Home() {
@@ -39,6 +40,8 @@ export default function Home() {
 							: 'Connected wallet is not the contract owner'}
 					</p>
 				)}
+
+				<OwnerDashboard isOwner={isOwner} />
 			</div>
 		</main>
 	);
