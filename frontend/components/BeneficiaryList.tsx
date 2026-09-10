@@ -2,6 +2,7 @@
 
 import { formatUnits } from 'viem';
 
+import RevokeScheduleButton from '@/components/RevokeScheduleButton';
 import { useBeneficiaryList } from '@/hooks/useBeneficiaryList';
 
 type BeneficiaryListProps = {
@@ -63,6 +64,13 @@ export default function BeneficiaryList({ isOwner }: BeneficiaryListProps) {
 											? 'Reclaimed'
 											: 'Not reclaimed'
 									}
+								/>
+							</div>
+
+							<div className='mt-5'>
+								<RevokeScheduleButton
+									beneficiary={beneficiary.beneficiary}
+									revoked={beneficiary.revoked}
 								/>
 							</div>
 						</article>
