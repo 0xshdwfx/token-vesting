@@ -81,16 +81,17 @@ export default function BeneficiaryList({ isOwner }: BeneficiaryListProps) {
 								/>
 							</div>
 
-							{beneficiary.revoked && !beneficiary.unvestedTokensReclaimed && (
-								<div className='mt-5'>
+							{beneficiary.revoked &&
+								!beneficiary.unvestedTokensReclaimed &&
+								beneficiary.totalAllocation >
+									beneficiary.amountVestedAtRevocation && (
 									<ReclaimTokensButton
 										beneficiary={beneficiary.beneficiary}
 										isPending={isReclaimPending}
 										isConfirming={isReclaimConfirming}
 										onReclaim={() => reclaim(beneficiary.beneficiary)}
 									/>
-								</div>
-							)}
+								)}
 						</article>
 					))}
 				</div>
