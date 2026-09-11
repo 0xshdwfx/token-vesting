@@ -3,7 +3,9 @@
 import { formatUnits } from 'viem';
 
 import RevokeScheduleButton from '@/components/RevokeScheduleButton';
+import ReclaimTokensButton from '@/components/ReclaimTokensButton';
 import { useBeneficiaryList } from '@/hooks/useBeneficiaryList';
+import { useReclaimUnvestedTokens } from '@/hooks/useReclaimUnvestedTokens';
 
 type BeneficiaryListProps = {
 	isOwner: boolean;
@@ -11,6 +13,11 @@ type BeneficiaryListProps = {
 
 export default function BeneficiaryList({ isOwner }: BeneficiaryListProps) {
 	const { beneficiaries, isLoading } = useBeneficiaryList(isOwner);
+	const {
+		reclaim,
+		isPending: isReclaimPending,
+		isConfirming: isReclaimConfirming,
+	} = useReclaimUnvestedTokens();
 
 	if (!isOwner) {
 		return null;
@@ -73,6 +80,17 @@ export default function BeneficiaryList({ isOwner }: BeneficiaryListProps) {
 									revoked={beneficiary.revoked}
 								/>
 							</div>
+
+							{beneficiary.revoked && !beneficiary.unvestedTokensReclaimed && (
+								<div className='mt-5'>
+									<ReclaimTokensButton
+										beneficiary={beneficiary.beneficiary}
+										isPending={isReclaimPending}
+										isConfirming={isReclaimConfirming}
+										onReclaim={() => reclaim(beneficiary.beneficiary)}
+									/>
+								</div>
+							)}
 						</article>
 					))}
 				</div>
