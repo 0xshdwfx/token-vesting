@@ -29,7 +29,7 @@ export default function ClaimButton({
 			type='button'
 			onClick={onClaim}
 			disabled={isDisabled}
-			className='mt-8 rounded-lg bg-cyan-500 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50'
+			className='mt-8 rounded-lg bg-cyan-500 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer'
 		>
 			{isClaimPending || isClaimConfirming
 				? 'Claiming...'

@@ -153,7 +153,7 @@ export default function AddBeneficiaryForm({
 				<button
 					type='submit'
 					disabled={isSubmitting}
-					className='self-end rounded-lg bg-amber-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50'
+					className='self-end rounded-lg bg-amber-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer'
 				>
 					{isSubmitting ? 'Adding beneficiary...' : 'Add beneficiary'}
 				</button>
