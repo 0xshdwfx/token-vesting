@@ -5,7 +5,9 @@ import { formatUnits } from 'viem';
 import Metric from '@/components/Metric';
 import AddBeneficiaryForm from '@/components/AddBeneficiaryForm';
 import BeneficiaryList from '@/components/BeneficiaryList';
+import WithdrawExcessTokensButton from '@/components/WithdrawExcessTokensButton';
 import { useOwnerOverview } from '@/hooks/useOwnerOverview';
+import { useWithdrawExcessTokens } from '@/hooks/useWithdrawExcessTokens';
 
 type OwnerDashboardProps = {
 	isOwner: boolean;
@@ -14,6 +16,12 @@ type OwnerDashboardProps = {
 export default function OwnerDashboard({ isOwner }: OwnerDashboardProps) {
 	const { totalOutstandingAllocation, beneficiaryCount, isPaused, isLoading } =
 		useOwnerOverview(isOwner);
+
+	const {
+		withdrawExcess,
+		isPending: isWithdrawPending,
+		isConfirming: isWithdrawConfirming,
+	} = useWithdrawExcessTokens();
 
 	if (!isOwner) {
 		return null;
@@ -33,19 +41,32 @@ export default function OwnerDashboard({ isOwner }: OwnerDashboardProps) {
 				{isLoading ? (
 					<p className='mt-6 text-slate-400'>Loading contract overview...</p>
 				) : (
-					<div className='mt-6 grid gap-4 md:grid-cols-3'>
-						<Metric
-							label='Outstanding allocation'
-							value={`${formatUnits(totalOutstandingAllocation, 18)} VST`}
-						/>
+					<>
+						<div className='mt-6 grid gap-4 md:grid-cols-3'>
+							<Metric
+								label='Outstanding allocation'
+								value={`${formatUnits(totalOutstandingAllocation, 18)} VST`}
+							/>
 
-						<Metric label='Beneficiaries' value={beneficiaryCount.toString()} />
+							<Metric
+								label='Beneficiaries'
+								value={beneficiaryCount.toString()}
+							/>
 
-						<Metric
-							label='Contract status'
-							value={isPaused ? 'Paused' : 'Active'}
-						/>
-					</div>
+							<Metric
+								label='Contract status'
+								value={isPaused ? 'Paused' : 'Active'}
+							/>
+						</div>
+
+						<div className='mt-6'>
+							<WithdrawExcessTokensButton
+								isPending={isWithdrawPending}
+								isConfirming={isWithdrawConfirming}
+								onWithdraw={withdrawExcess}
+							/>
+						</div>
+					</>
 				)}
 			</section>
 
