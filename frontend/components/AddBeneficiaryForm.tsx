@@ -3,10 +3,8 @@
 import { useState, type FormEvent } from 'react';
 import { isAddress, parseUnits, type Address } from 'viem';
 import { toast } from 'sonner';
-import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 
-import { TOKEN_VESTING_ADDRESS } from '@/lib/contracts/addresses';
-import { tokenVestingAbi } from '@/lib/contracts/tokenVestingAbi';
+import { useAddBeneficiary } from '@/hooks/useAddBeneficiary';
 
 type AddBeneficiaryFormProps = {
 	isOwner: boolean;
@@ -28,24 +26,7 @@ export default function AddBeneficiaryForm({
 		String(DEFAULT_VESTING_DURATION),
 	);
 
-	const {
-		writeContract,
-		data: transactionHash,
-		isPending,
-	} = useWriteContract({
-		mutation: {
-			onSuccess: () => {
-				toast.success('Beneficiary transaction submitted');
-			},
-			onError: (error) => {
-				toast.error(error.message);
-			},
-		},
-	});
-
-	const { isLoading: isConfirming } = useWaitForTransactionReceipt({
-		hash: transactionHash,
-	});
+	const { addBeneficiary, isPending, isConfirming } = useAddBeneficiary();
 
 	if (!isOwner) {
 		return null;
@@ -74,23 +55,33 @@ export default function AddBeneficiaryForm({
 			return;
 		}
 
+		if (allocationWei <= BigInt(0)) {
+			toast.error('Allocation must be greater than zero');
+			return;
+		}
+
+		if (cliffDurationSeconds <= BigInt(0)) {
+			toast.error('Cliff duration must be greater than zero');
+			return;
+		}
+
+		if (vestingDurationSeconds <= BigInt(0)) {
+			toast.error('Vesting duration must be greater than zero');
+			return;
+		}
+
 		if (cliffDurationSeconds >= vestingDurationSeconds) {
 			toast.error('Cliff must be shorter than vesting duration');
 			return;
 		}
 
-		writeContract({
-			address: TOKEN_VESTING_ADDRESS,
-			abi: tokenVestingAbi,
-			functionName: 'addBeneficiary',
-			args: [
-				beneficiary as Address,
-				allocationWei,
-				startTimeSeconds,
-				cliffDurationSeconds,
-				vestingDurationSeconds,
-			],
-		});
+		addBeneficiary(
+			beneficiary as Address,
+			allocationWei,
+			startTimeSeconds,
+			cliffDurationSeconds,
+			vestingDurationSeconds,
+		);
 	}
 
 	const isSubmitting = isPending || isConfirming;
@@ -101,6 +92,7 @@ export default function AddBeneficiaryForm({
 				<p className='text-sm font-medium text-amber-400'>
 					Owner administration
 				</p>
+
 				<h2 className='mt-2 text-2xl font-semibold text-white'>
 					Add beneficiary
 				</h2>
@@ -153,7 +145,7 @@ export default function AddBeneficiaryForm({
 				<button
 					type='submit'
 					disabled={isSubmitting}
-					className='self-end rounded-lg bg-amber-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer'
+					className='cursor-pointer self-end rounded-lg bg-amber-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50'
 				>
 					{isSubmitting ? 'Adding beneficiary...' : 'Add beneficiary'}
 				</button>
@@ -184,6 +176,7 @@ function Field({
 	return (
 		<label className='flex flex-col gap-2 text-sm text-slate-300'>
 			<span>{label}</span>
+
 			<input
 				required
 				type={type}
