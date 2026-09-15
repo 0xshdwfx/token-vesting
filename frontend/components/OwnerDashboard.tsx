@@ -16,8 +16,14 @@ type OwnerDashboardProps = {
 };
 
 export default function OwnerDashboard({ isOwner }: OwnerDashboardProps) {
-	const { totalOutstandingAllocation, beneficiaryCount, isPaused, isLoading } =
-		useOwnerOverview(isOwner);
+	const {
+		totalOutstandingAllocation,
+		beneficiaryCount,
+		isPaused,
+		contractBalance,
+		availableExcess,
+		isLoading,
+	} = useOwnerOverview(isOwner);
 
 	const {
 		withdrawExcess,
@@ -51,10 +57,20 @@ export default function OwnerDashboard({ isOwner }: OwnerDashboardProps) {
 					<p className='mt-6 text-slate-400'>Loading contract overview...</p>
 				) : (
 					<>
-						<div className='mt-6 grid gap-4 md:grid-cols-3'>
+						<div className='mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-5'>
 							<Metric
 								label='Outstanding allocation'
 								value={`${formatUnits(totalOutstandingAllocation, 18)} VST`}
+							/>
+
+							<Metric
+								label='Contract balance'
+								value={`${formatUnits(contractBalance, 18)} VST`}
+							/>
+
+							<Metric
+								label='Available excess'
+								value={`${formatUnits(availableExcess, 18)} VST`}
 							/>
 
 							<Metric

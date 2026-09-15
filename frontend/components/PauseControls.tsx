@@ -25,7 +25,7 @@ export default function PauseControls({
 			disabled={isDisabled}
 			className='rounded-lg border border-amber-500/60 px-4 py-2 text-sm font-semibold text-amber-300 transition hover:bg-amber-500/10 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer'
 		>
-			{isPending || isConfirming ? 'Pausing...' : 'Pause contract'}
+			{isPending || isConfirming ? 'Pausing...' : 'Pause'}
 		</button>
 	) : (
 		<button
@@ -35,7 +35,7 @@ export default function PauseControls({
 			disabled={isDisabled}
 			className='rounded-lg border border-amber-500/60 px-4 py-2 text-sm font-semibold text-amber-300 transition hover:bg-amber-500/10 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer'
 		>
-			{isPending || isConfirming ? 'Unpausing...' : 'Unpause contract'}
+			{isPending || isConfirming ? 'Unpausing...' : 'Unpause'}
 		</button>
 	);
 }
