@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { isAddress, parseUnits, type Address } from 'viem';
 import { toast } from 'sonner';
 
@@ -26,7 +26,18 @@ export default function AddBeneficiaryForm({
 		String(DEFAULT_VESTING_DURATION),
 	);
 
-	const { addBeneficiary, isPending, isConfirming } = useAddBeneficiary();
+	const { addBeneficiary, isPending, isConfirming, isConfirmed } =
+		useAddBeneficiary();
+
+	useEffect(() => {
+		if (!isConfirmed) {
+			return;
+		}
+
+		setBeneficiary('');
+		setAllocation('');
+		setStartTime('');
+	}, [isConfirmed]);
 
 	if (!isOwner) {
 		return null;

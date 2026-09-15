@@ -78,5 +78,6 @@ export function useAddBeneficiary() {
 		addBeneficiary,
 		isPending,
 		isConfirming,
+		isConfirmed,
 	};
 }
