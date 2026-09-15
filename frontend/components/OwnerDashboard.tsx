@@ -6,8 +6,10 @@ import Metric from '@/components/Metric';
 import AddBeneficiaryForm from '@/components/AddBeneficiaryForm';
 import BeneficiaryList from '@/components/BeneficiaryList';
 import WithdrawExcessTokensButton from '@/components/WithdrawExcessTokensButton';
+import PauseControls from '@/components/PauseControls';
 import { useOwnerOverview } from '@/hooks/useOwnerOverview';
 import { useWithdrawExcessTokens } from '@/hooks/useWithdrawExcessTokens';
+import { usePauseControls } from '@/hooks/usePauseControls';
 
 type OwnerDashboardProps = {
 	isOwner: boolean;
@@ -22,6 +24,13 @@ export default function OwnerDashboard({ isOwner }: OwnerDashboardProps) {
 		isPending: isWithdrawPending,
 		isConfirming: isWithdrawConfirming,
 	} = useWithdrawExcessTokens();
+
+	const {
+		pause,
+		unpause,
+		isPending: isPausePending,
+		isConfirming: isPauseConfirming,
+	} = usePauseControls();
 
 	if (!isOwner) {
 		return null;
@@ -64,6 +73,16 @@ export default function OwnerDashboard({ isOwner }: OwnerDashboardProps) {
 								isPending={isWithdrawPending}
 								isConfirming={isWithdrawConfirming}
 								onWithdraw={withdrawExcess}
+							/>
+						</div>
+
+						<div className='mt-6'>
+							<PauseControls
+								isPaused={isPaused}
+								isPending={isPausePending}
+								isConfirming={isPauseConfirming}
+								onPause={pause}
+								onUnpause={unpause}
 							/>
 						</div>
 					</>
