@@ -8,6 +8,7 @@ import type { Address } from 'viem';
 
 import { TOKEN_VESTING_ADDRESS } from '@/lib/contracts/addresses';
 import { tokenVestingAbi } from '@/lib/contracts/tokenVestingAbi';
+import { getContractErrorMessage } from '@/lib/getContractErrorMessage';
 
 export function useAddBeneficiary() {
 	const queryClient = useQueryClient();
@@ -22,7 +23,7 @@ export function useAddBeneficiary() {
 				toast.success('Beneficiary transaction submitted');
 			},
 			onError: (error) => {
-				toast.error(error.message);
+				toast.error(getContractErrorMessage(error));
 			},
 		},
 	});
@@ -40,7 +41,7 @@ export function useAddBeneficiary() {
 			return;
 		}
 
-		toast.error(confirmationError.message);
+		toast.error(getContractErrorMessage(confirmationError));
 	}, [confirmationError]);
 
 	useEffect(() => {
