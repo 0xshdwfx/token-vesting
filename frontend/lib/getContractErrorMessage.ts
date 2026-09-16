@@ -127,5 +127,13 @@ export function getContractErrorMessage(error: unknown): string {
 		return 'The vesting duration is invalid.';
 	}
 
+	if (combinedError.includes('TokenVesting__UnvestedTokensAlreadyReclaimed')) {
+		return 'The unvested tokens have already been reclaimed.';
+	}
+
+	if (combinedError.includes('TokenVesting__ScheduleAlreadyRevoked')) {
+		return 'This vesting schedule has already been revoked.';
+	}
+
 	return 'The transaction failed. Please check the form values and try again.';
 }
