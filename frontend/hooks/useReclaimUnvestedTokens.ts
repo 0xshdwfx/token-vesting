@@ -8,6 +8,7 @@ import type { Address } from 'viem';
 
 import { TOKEN_VESTING_ADDRESS } from '@/lib/contracts/addresses';
 import { tokenVestingAbi } from '@/lib/contracts/tokenVestingAbi';
+import { getContractErrorMessage } from '@/lib/getContractErrorMessage';
 
 export function useReclaimUnvestedTokens() {
 	const queryClient = useQueryClient();
@@ -19,7 +20,7 @@ export function useReclaimUnvestedTokens() {
 	} = useWriteContract({
 		mutation: {
 			onError: (error) => {
-				toast.error(error.message);
+				toast.error(getContractErrorMessage(error));
 			},
 		},
 	});
@@ -34,7 +35,7 @@ export function useReclaimUnvestedTokens() {
 
 	useEffect(() => {
 		if (confirmationError) {
-			toast.error(confirmationError.message);
+			toast.error(getContractErrorMessage(confirmationError));
 		}
 	}, [confirmationError]);
 
