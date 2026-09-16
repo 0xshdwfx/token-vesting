@@ -1,7 +1,5 @@
 'use client';
 
-import { formatUnits } from 'viem';
-
 import Metric from '@/components/Metric';
 import AddBeneficiaryForm from '@/components/AddBeneficiaryForm';
 import BeneficiaryList from '@/components/BeneficiaryList';
@@ -10,6 +8,7 @@ import PauseControls from '@/components/PauseControls';
 import { useOwnerOverview } from '@/hooks/useOwnerOverview';
 import { useWithdrawExcessTokens } from '@/hooks/useWithdrawExcessTokens';
 import { usePauseControls } from '@/hooks/usePauseControls';
+import { formatTokenAmount } from '@/lib/formatTokenAmount';
 
 type OwnerDashboardProps = {
 	isOwner: boolean;
@@ -60,17 +59,17 @@ export default function OwnerDashboard({ isOwner }: OwnerDashboardProps) {
 						<div className='mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-5'>
 							<Metric
 								label='Outstanding allocation'
-								value={`${formatUnits(totalOutstandingAllocation, 18)} VST`}
+								value={`${formatTokenAmount(totalOutstandingAllocation)} VST`}
 							/>
 
 							<Metric
 								label='Contract balance'
-								value={`${formatUnits(contractBalance, 18)} VST`}
+								value={`${formatTokenAmount(contractBalance)} VST`}
 							/>
 
 							<Metric
 								label='Available excess'
-								value={`${formatUnits(availableExcess, 18)} VST`}
+								value={`${formatTokenAmount(availableExcess)} VST`}
 							/>
 
 							<Metric

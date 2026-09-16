@@ -1,11 +1,10 @@
 'use client';
 
-import { formatUnits } from 'viem';
-
 import RevokeScheduleButton from '@/components/RevokeScheduleButton';
 import ReclaimTokensButton from '@/components/ReclaimTokensButton';
 import { useBeneficiaryList } from '@/hooks/useBeneficiaryList';
 import { useReclaimUnvestedTokens } from '@/hooks/useReclaimUnvestedTokens';
+import { formatTokenAmount } from '@/lib/formatTokenAmount';
 
 type BeneficiaryListProps = {
 	isOwner: boolean;
@@ -51,12 +50,12 @@ export default function BeneficiaryList({ isOwner }: BeneficiaryListProps) {
 							<div className='mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
 								<Detail
 									label='Allocation'
-									value={`${formatUnits(beneficiary.totalAllocation, 18)} VST`}
+									value={`${formatTokenAmount(beneficiary.totalAllocation)} VST`}
 								/>
 
 								<Detail
 									label='Claimed'
-									value={`${formatUnits(beneficiary.amountClaimed, 18)} VST`}
+									value={`${formatTokenAmount(beneficiary.amountClaimed)} VST`}
 								/>
 
 								<Detail
@@ -85,12 +84,14 @@ export default function BeneficiaryList({ isOwner }: BeneficiaryListProps) {
 								!beneficiary.unvestedTokensReclaimed &&
 								beneficiary.totalAllocation >
 									beneficiary.amountVestedAtRevocation && (
-									<ReclaimTokensButton
-										beneficiary={beneficiary.beneficiary}
-										isPending={isReclaimPending}
-										isConfirming={isReclaimConfirming}
-										onReclaim={() => reclaim(beneficiary.beneficiary)}
-									/>
+									<div className='mt-5'>
+										<ReclaimTokensButton
+											beneficiary={beneficiary.beneficiary}
+											isPending={isReclaimPending}
+											isConfirming={isReclaimConfirming}
+											onReclaim={() => reclaim(beneficiary.beneficiary)}
+										/>
+									</div>
 								)}
 						</article>
 					))}
