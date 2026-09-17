@@ -7,6 +7,7 @@ import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 
 import { TOKEN_VESTING_ADDRESS } from '@/lib/contracts/addresses';
 import { tokenVestingAbi } from '@/lib/contracts/tokenVestingAbi';
+import { getContractErrorMessage } from '@/lib/getContractErrorMessage';
 
 export function usePauseControls() {
 	const [action, setAction] = useState<'pause' | 'unpause' | null>(null);
@@ -19,7 +20,7 @@ export function usePauseControls() {
 	} = useWriteContract({
 		mutation: {
 			onError: (error) => {
-				toast.error(error.message);
+				toast.error(getContractErrorMessage(error));
 			},
 		},
 	});
@@ -34,7 +35,7 @@ export function usePauseControls() {
 
 	useEffect(() => {
 		if (confirmationError) {
-			toast.error(confirmationError.message);
+			toast.error(getContractErrorMessage(confirmationError));
 		}
 	}, [confirmationError]);
 
@@ -57,6 +58,7 @@ export function usePauseControls() {
 			address: TOKEN_VESTING_ADDRESS,
 			abi: tokenVestingAbi,
 			functionName: 'pause',
+			gas: BigInt(300000),
 		});
 	}
 
@@ -66,6 +68,7 @@ export function usePauseControls() {
 			address: TOKEN_VESTING_ADDRESS,
 			abi: tokenVestingAbi,
 			functionName: 'unpause',
+			gas: BigInt(300000),
 		});
 	}
 

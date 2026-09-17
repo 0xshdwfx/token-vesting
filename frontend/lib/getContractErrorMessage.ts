@@ -139,5 +139,13 @@ export function getContractErrorMessage(error: unknown): string {
 		return 'There are no excess tokens available to withdraw.';
 	}
 
+	if (combinedError.includes('EnforcedPause')) {
+		return 'The contract is already paused.';
+	}
+
+	if (combinedError.includes('ExpectedPause')) {
+		return 'The contract is not paused.';
+	}
+
 	return 'The transaction failed. Please check the form values and try again.';
 }
