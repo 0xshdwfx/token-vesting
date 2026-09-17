@@ -15,16 +15,18 @@ export type BeneficiarySchedule = {
 };
 
 export function useBeneficiaryList(isOwner: boolean) {
-	const { data: beneficiaryCount, isLoading: isCountLoading } = useReadContract(
-		{
-			address: TOKEN_VESTING_ADDRESS,
-			abi: tokenVestingAbi,
-			functionName: 'getBeneficiariesLength',
-			query: {
-				enabled: isOwner,
-			},
+	const {
+		data: beneficiaryCount,
+		isLoading: isCountLoading,
+		isError: isCountError,
+	} = useReadContract({
+		address: TOKEN_VESTING_ADDRESS,
+		abi: tokenVestingAbi,
+		functionName: 'getBeneficiariesLength',
+		query: {
+			enabled: isOwner,
 		},
-	);
+	});
 
 	const count = Number(beneficiaryCount ?? BigInt(0));
 
@@ -35,13 +37,16 @@ export function useBeneficiaryList(isOwner: boolean) {
 		args: [BigInt(index)] as const,
 	}));
 
-	const { data: beneficiaryResults, isLoading: isBeneficiaryLoading } =
-		useReadContracts({
-			contracts: beneficiaryContracts,
-			query: {
-				enabled: isOwner && count > 0,
-			},
-		});
+	const {
+		data: beneficiaryResults,
+		isLoading: isBeneficiaryLoading,
+		isError: isBeneficiaryError,
+	} = useReadContracts({
+		contracts: beneficiaryContracts,
+		query: {
+			enabled: isOwner && count > 0,
+		},
+	});
 
 	const addresses =
 		beneficiaryResults
@@ -60,13 +65,16 @@ export function useBeneficiaryList(isOwner: boolean) {
 		args: [beneficiary] as const,
 	}));
 
-	const { data: scheduleResults, isLoading: isScheduleLoading } =
-		useReadContracts({
-			contracts: scheduleContracts,
-			query: {
-				enabled: isOwner && addresses.length > 0,
-			},
-		});
+	const {
+		data: scheduleResults,
+		isLoading: isScheduleLoading,
+		isError: isScheduleError,
+	} = useReadContracts({
+		contracts: scheduleContracts,
+		query: {
+			enabled: isOwner && addresses.length > 0,
+		},
+	});
 
 	const beneficiaries: BeneficiarySchedule[] =
 		scheduleResults?.flatMap((result, index) => {
@@ -91,5 +99,6 @@ export function useBeneficiaryList(isOwner: boolean) {
 	return {
 		beneficiaries,
 		isLoading: isCountLoading || isBeneficiaryLoading || isScheduleLoading,
+		isError: isCountError || isBeneficiaryError || isScheduleError,
 	};
 }

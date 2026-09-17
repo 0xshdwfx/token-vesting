@@ -11,7 +11,7 @@ type BeneficiaryListProps = {
 };
 
 export default function BeneficiaryList({ isOwner }: BeneficiaryListProps) {
-	const { beneficiaries, isLoading } = useBeneficiaryList(isOwner);
+	const { beneficiaries, isLoading, isError } = useBeneficiaryList(isOwner);
 	const {
 		reclaim,
 		isPending: isReclaimPending,
@@ -26,6 +26,16 @@ export default function BeneficiaryList({ isOwner }: BeneficiaryListProps) {
 		return (
 			<section className='mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-8'>
 				<p className='text-slate-400'>Loading beneficiaries...</p>
+			</section>
+		);
+	}
+
+	if (isError) {
+		return (
+			<section className='mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-8'>
+				<p className='text-red-400'>
+					Unable to load beneficiaries. Please check your network connection.
+				</p>
 			</section>
 		);
 	}
