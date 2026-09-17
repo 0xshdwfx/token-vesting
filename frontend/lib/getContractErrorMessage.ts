@@ -155,6 +155,10 @@ export function getContractErrorMessage(error: unknown): string {
 		return 'The vesting contract does not have enough tokens to process this claim.';
 	}
 
+	if (combinedError.includes('TokenVesting__NothingToReclaim')) {
+		return 'There are no unvested tokens available to reclaim.';
+	}
+
 	if (combinedError.includes('TokenVesting__BeneficiaryDoesNotExist')) {
 		return 'This beneficiary does not have a vesting schedule.';
 	}
