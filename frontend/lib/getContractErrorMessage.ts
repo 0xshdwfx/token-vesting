@@ -155,5 +155,21 @@ export function getContractErrorMessage(error: unknown): string {
 		return 'The vesting contract does not have enough tokens to process this claim.';
 	}
 
+	if (combinedError.includes('TokenVesting__BeneficiaryDoesNotExist')) {
+		return 'This beneficiary does not have a vesting schedule.';
+	}
+
+	if (combinedError.includes('TokenVesting__ScheduleNotRevoked')) {
+		return 'The vesting schedule must be revoked first.';
+	}
+
+	if (combinedError.includes('OwnableUnauthorizedAccount')) {
+		return 'Only the contract owner can perform this action.';
+	}
+
+	if (combinedError.includes('SafeERC20FailedOperation')) {
+		return 'The token transfer failed.';
+	}
+
 	return 'The transaction failed. Please check the form values and try again.';
 }
