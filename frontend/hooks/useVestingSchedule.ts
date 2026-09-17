@@ -48,5 +48,9 @@ export function useVestingSchedule() {
 			scheduleQuery.isLoading ||
 			hasScheduleQuery.isLoading ||
 			claimableAmountQuery.isLoading,
+		isError:
+			scheduleQuery.isError ||
+			hasScheduleQuery.isError ||
+			claimableAmountQuery.isError,
 	};
 }

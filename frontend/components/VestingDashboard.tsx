@@ -15,6 +15,7 @@ export default function VestingDashboard() {
 		hasSchedule,
 		claimableAmount,
 		isLoading,
+		isError,
 	} = useVestingSchedule();
 
 	const {
@@ -45,6 +46,17 @@ export default function VestingDashboard() {
 		return (
 			<section className='mt-12 rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-2xl'>
 				<p className='text-slate-300'>Loading your vesting schedule...</p>
+			</section>
+		);
+	}
+
+	if (isError) {
+		return (
+			<section className='mt-12 rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-2xl'>
+				<p className='text-red-400'>
+					Unable to load your vesting schedule. Please check your network
+					connection.
+				</p>
 			</section>
 		);
 	}
