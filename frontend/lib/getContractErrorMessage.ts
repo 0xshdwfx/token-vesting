@@ -147,5 +147,13 @@ export function getContractErrorMessage(error: unknown): string {
 		return 'The contract is not paused.';
 	}
 
+	if (combinedError.includes('TokenVesting__ZeroTokensToClaim')) {
+		return 'There are no vested tokens available to claim.';
+	}
+
+	if (combinedError.includes('TokenVesting__ContractUnderfunded')) {
+		return 'The vesting contract does not have enough tokens to process this claim.';
+	}
+
 	return 'The transaction failed. Please check the form values and try again.';
 }

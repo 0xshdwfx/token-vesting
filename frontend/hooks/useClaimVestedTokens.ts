@@ -7,6 +7,7 @@ import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 
 import { TOKEN_VESTING_ADDRESS } from '@/lib/contracts/addresses';
 import { tokenVestingAbi } from '@/lib/contracts/tokenVestingAbi';
+import { getContractErrorMessage } from '@/lib/getContractErrorMessage';
 
 type Address = `0x${string}`;
 
@@ -20,7 +21,7 @@ export function useClaimVestedTokens() {
 	} = useWriteContract({
 		mutation: {
 			onError: (error) => {
-				toast.error(error.message);
+				toast.error(getContractErrorMessage(error));
 			},
 		},
 	});
@@ -47,7 +48,7 @@ export function useClaimVestedTokens() {
 			return;
 		}
 
-		toast.error(confirmationError.message);
+		toast.error(getContractErrorMessage(confirmationError));
 	}, [confirmationError]);
 
 	useEffect(() => {
