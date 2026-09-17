@@ -71,6 +71,7 @@ export function useClaimVestedTokens() {
 			abi: tokenVestingAbi,
 			functionName: 'claimVestedTokens',
 			args: [beneficiary],
+			gas: BigInt(300000),
 		});
 	}
 

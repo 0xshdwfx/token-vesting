@@ -54,6 +54,7 @@ export function useRevokeSchedule() {
 			abi: tokenVestingAbi,
 			functionName: 'revokeSchedule',
 			args: [beneficiary],
+			gas: BigInt(300000),
 		});
 	}
 

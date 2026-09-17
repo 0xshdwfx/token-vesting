@@ -54,6 +54,7 @@ export function useReclaimUnvestedTokens() {
 			abi: tokenVestingAbi,
 			functionName: 'reclaimUnvestedTokens',
 			args: [beneficiary],
+			gas: BigInt(300000),
 		});
 	}
 
