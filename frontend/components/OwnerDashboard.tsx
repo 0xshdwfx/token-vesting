@@ -22,6 +22,7 @@ export default function OwnerDashboard({ isOwner }: OwnerDashboardProps) {
 		contractBalance,
 		availableExcess,
 		isLoading,
+		isError,
 	} = useOwnerOverview(isOwner);
 
 	const {
@@ -54,6 +55,11 @@ export default function OwnerDashboard({ isOwner }: OwnerDashboardProps) {
 
 				{isLoading ? (
 					<p className='mt-6 text-slate-400'>Loading contract overview...</p>
+				) : isError ? (
+					<p className='mt-6 text-red-400'>
+						Unable to load the contract overview. Please check your network
+						connection.
+					</p>
 				) : (
 					<>
 						<div className='mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-5'>

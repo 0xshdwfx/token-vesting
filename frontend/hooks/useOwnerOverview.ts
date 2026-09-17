@@ -67,5 +67,10 @@ export function useOwnerOverview(isOwner: boolean) {
 			beneficiaryCount.isLoading ||
 			paused.isLoading ||
 			contractBalance.isLoading,
+		isError:
+			totalOutstandingAllocation.isError ||
+			beneficiaryCount.isError ||
+			paused.isError ||
+			contractBalance.isError,
 	};
 }
