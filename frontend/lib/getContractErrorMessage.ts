@@ -135,5 +135,9 @@ export function getContractErrorMessage(error: unknown): string {
 		return 'This vesting schedule has already been revoked.';
 	}
 
+	if (combinedError.includes('TokenVesting__NoExcessTokensToWithdraw')) {
+		return 'There are no excess tokens available to withdraw.';
+	}
+
 	return 'The transaction failed. Please check the form values and try again.';
 }

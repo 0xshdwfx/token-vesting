@@ -7,6 +7,7 @@ import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 
 import { TOKEN_VESTING_ADDRESS } from '@/lib/contracts/addresses';
 import { tokenVestingAbi } from '@/lib/contracts/tokenVestingAbi';
+import { getContractErrorMessage } from '@/lib/getContractErrorMessage';
 
 export function useWithdrawExcessTokens() {
 	const queryClient = useQueryClient();
@@ -18,7 +19,7 @@ export function useWithdrawExcessTokens() {
 	} = useWriteContract({
 		mutation: {
 			onError: (error) => {
-				toast.error(error.message);
+				toast.error(getContractErrorMessage(error));
 			},
 		},
 	});
@@ -33,7 +34,7 @@ export function useWithdrawExcessTokens() {
 
 	useEffect(() => {
 		if (confirmationError) {
-			toast.error(confirmationError.message);
+			toast.error(getContractErrorMessage(confirmationError));
 		}
 	}, [confirmationError]);
 
@@ -51,6 +52,7 @@ export function useWithdrawExcessTokens() {
 			address: TOKEN_VESTING_ADDRESS,
 			abi: tokenVestingAbi,
 			functionName: 'withdrawExcessTokens',
+			gas: BigInt(300000),
 		});
 	}
 
