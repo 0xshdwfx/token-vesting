@@ -35,15 +35,6 @@ export function useClaimVestedTokens() {
 	});
 
 	useEffect(() => {
-		if (!isConfirmed) {
-			return;
-		}
-
-		void queryClient.invalidateQueries();
-		toast.success('Claim confirmed');
-	}, [isConfirmed, queryClient]);
-
-	useEffect(() => {
 		if (!confirmationError) {
 			return;
 		}
