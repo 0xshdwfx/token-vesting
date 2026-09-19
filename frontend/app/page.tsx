@@ -5,7 +5,13 @@ import VestingDashboard from '@/components/VestingDashboard';
 import OwnerDashboard from '@/components/OwnerDashboard';
 import { useTokenVestingOwner } from '@/hooks/useTokenVestingOwner';
 
+import { sepolia } from 'wagmi/chains';
+import { useAccount } from 'wagmi';
+
 export default function Home() {
+	const { chainId } = useAccount();
+	const isSepolia = chainId === sepolia.id;
+
 	const { isOwner, isLoading: isOwnerLoading } = useTokenVestingOwner();
 
 	return (
@@ -23,6 +29,18 @@ export default function Home() {
 					<div className='shrink-0 self-start sm:self-auto'>
 						<ConnectButton />
 					</div>
+
+					<p className='text-xs text-slate-400'>
+						Wallet chain ID: {chainId ?? 'Not connected'}
+					</p>
+
+					<p
+						className={
+							isSepolia ? 'text-xs text-emerald-400' : 'text-xs text-red-400'
+						}
+					>
+						{isSepolia ? 'Wallet is on Sepolia' : 'Wallet is not on Sepolia'}
+					</p>
 				</header>
 
 				<VestingDashboard />
