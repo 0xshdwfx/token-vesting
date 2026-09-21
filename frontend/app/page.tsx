@@ -5,6 +5,8 @@ import VestingDashboard from '@/components/VestingDashboard';
 import OwnerDashboard from '@/components/OwnerDashboard';
 import { useTokenVestingOwner } from '@/hooks/useTokenVestingOwner';
 
+import Link from 'next/link';
+
 export default function Home() {
 	const { isOwner, isLoading: isOwnerLoading } = useTokenVestingOwner();
 
@@ -24,6 +26,29 @@ export default function Home() {
 						<ConnectButton />
 					</div>
 				</header>
+
+				<section className='mt-8 rounded-2xl border border-cyan-500/30 bg-cyan-500/5 p-6'>
+					<p className='text-sm font-medium text-cyan-400'>
+						Public interactive demo
+					</p>
+
+					<h2 className='mt-2 text-xl font-semibold text-white'>
+						Try the beneficiary experience
+					</h2>
+
+					<p className='mt-2 max-w-2xl text-sm leading-6 text-slate-300'>
+						Connect a Sepolia wallet to create a fixed demo vesting schedule for
+						your own address. The demo uses testnet tokens with no real-world
+						value.
+					</p>
+
+					<Link
+						href='/demo'
+						className='mt-4 inline-flex rounded-lg bg-cyan-500 px-4 py-2 font-semibold text-slate-950 transition hover:bg-cyan-400'
+					>
+						Open interactive demo
+					</Link>
+				</section>
 
 				<VestingDashboard />
 
