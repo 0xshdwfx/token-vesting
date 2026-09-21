@@ -39,7 +39,8 @@ The contract tracks the total outstanding allocation so beneficiary funds remain
 - **Wallet-Aware Interface:** Handles wallet connection, account switching, wrong-network states, and missing schedules
 - **Readable Transaction Errors:** Contract custom errors are decoded into user-facing messages
 - **Transaction Feedback:** Pending, confirmation, success, and failure states are displayed through notifications
-- **Verified Contracts:** Deployed Sepolia contracts are available through Etherscan
+- **Interactive Beneficiary Demo:** Visitors can create and claim a fixed demo schedule using their own Sepolia wallet
+- **Verified Contracts:** Production and demo Sepolia contracts are available through Etherscan
 
 ---
 
@@ -67,7 +68,36 @@ Connect the wallet that was assigned a vesting schedule.
 
 Claimed tokens are transferred directly to the beneficiary address. A different wallet cannot redirect the claim to itself.
 
-### 3. Owner Workflow
+### 3. Interactive Public Demo
+
+The live site includes a separate self-service beneficiary demo:
+
+[Open the interactive demo](https://token-vesting.0xs.to/demo)
+
+The demo uses separate Sepolia contracts and does not expose the production owner wallet or administration controls. Visitors connect their own Sepolia wallet and create one fixed schedule for that wallet.
+
+Demo parameters:
+
+- Allocation: `1 VST`
+- Cliff: `60 seconds`
+- Vesting duration: `10 minutes`
+- Beneficiary: the connected wallet only
+- Maximum schedules: `100`
+- Maximum demo allocation: `100 VST`
+
+To use the demo:
+
+1. Switch the wallet to Sepolia.
+2. Obtain a small amount of Sepolia ETH for transaction fees.
+3. Open the interactive demo.
+4. Connect a wallet.
+5. Click **Create demo schedule**.
+6. Wait for the 60-second cliff to expire.
+7. Claim the available demo tokens.
+
+The demo token has no real-world value. Each wallet can create only one demo schedule, and the demo pool may require redeployment or additional funding after the allocation cap is reached.
+
+### 4. Owner Workflow
 
 Connect the wallet that deployed the `TokenVesting` contract. The owner dashboard provides access to administrative functions.
 
@@ -164,7 +194,14 @@ The contracts are deployed on **Sepolia testnet** and can be inspected on Ethers
 | **TokenVesting**       | `0x1Ed38eDf4C2d862065fcdD2F55Ed2646b6E68d96` | [View Code](https://sepolia.etherscan.io/address/0x1Ed38eDf4C2d862065fcdD2F55Ed2646b6E68d96#code) |
 | **VestingToken (VST)** | `0xC86720dCB5d5377D7882C41f74F9D6CFF2DA03Bf` | [View Code](https://sepolia.etherscan.io/address/0xC86720dCB5d5377D7882C41f74F9D6CFF2DA03Bf#code) |
 
-`VestingToken` is a test ERC20 token. Its constructor mints the initial supply to the deployer, who can then transfer tokens to the `TokenVesting` contract for testing.
+### Interactive Demo Contracts
+
+| Contract | Address | Verified Source |
+| --- | --- | --- |
+| **DemoTokenVesting** | `0x20feedd2b971e4766b475649471dc30a5a3820a0` | [View Code](https://sepolia.etherscan.io/address/0x20feedd2b971e4766b475649471dc30a5a3820a0#code) |
+| **Demo VestingToken (VST)** | `0x94ffa9798b90a12144299fe20d353ec17000ca01` | [View Code](https://sepolia.etherscan.io/address/0x94ffa9798b90a12144299fe20d353ec17000ca01#code) |
+
+The production and demo deployments are separate. The demo contract is intentionally ownerless and exposes only fixed self-service schedule creation and claiming. `VestingToken` is a test ERC20 token. Its constructor mints the initial supply to the deployer, who can then transfer tokens to a vesting contract for testing.
 
 ---
 
@@ -226,9 +263,11 @@ This ensures the owner cannot withdraw tokens reserved for beneficiaries.
 ├── contracts/
 │   ├── src/
 │   │   ├── TokenVesting.sol
-│   │   └── VestingToken.sol
+│   │   ├── VestingToken.sol
+│   │   └── DemoTokenVesting.sol
 │   ├── script/
-│   │   └── DeployTokenVesting.s.sol
+│   │   ├── DeployTokenVesting.s.sol
+│   │   └── DeployDemoTokenVesting.s.sol
 │   ├── test/
 │   └── foundry.toml
 ├── frontend/
@@ -368,6 +407,9 @@ The project has been tested across the main beneficiary and owner workflows, inc
 - Custom contract error decoding
 - Read failures and transaction failures in the frontend
 - Explicit gas-limit handling for Sepolia RPC estimation issues
+- Ownerless demo schedule creation restricted to `msg.sender`
+- Demo schedule cap and insufficient-funding protection
+- Interactive demo creation, cliff expiry, claiming, and automatic UI refresh
 
 ---
 
@@ -381,6 +423,9 @@ The project has been tested across the main beneficiary and owner workflows, inc
 - Blockchain timestamps and transaction confirmations depend on network conditions.
 - Users need Sepolia ETH to pay transaction fees.
 - Token transfers into the vesting contract must be performed before allocations can be created.
+- The public demo uses fixed parameters and does not demonstrate the production owner administration workflow.
+- The demo pool is capped at `100 VST` and may need to be redeployed or refilled after reaching its schedule limit.
+- Visitors must supply their own Sepolia ETH for demo transaction fees.
 
 ---
 
@@ -393,7 +438,8 @@ Before using this platform, understand the following:
 - **Token Risk:** `VST` is a test token and should not be treated as having real-world value.
 - **Transaction Risk:** Incorrect addresses, timestamps, durations, or token transfers may produce unexpected results.
 - **Network Risk:** RPC failures, congestion, wallet errors, and gas-estimation problems can affect transactions.
-- **Administrative Risk:** The contract owner has privileged abilities to add beneficiaries, revoke schedules, pause protected operations, reclaim unvested tokens, and withdraw excess tokens.
+- **Administrative Risk:** The production contract owner has privileged abilities to add beneficiaries, revoke schedules, pause protected operations, reclaim unvested tokens, and withdraw excess tokens.
+- **Demo Separation:** The public demo is a separate ownerless deployment with fixed limits; it must not be treated as the production contract.
 
 Use the application only with testnet assets and only amounts you can afford to lose.
 
